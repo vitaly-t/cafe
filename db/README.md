@@ -40,3 +40,11 @@ Type "help" for help.
 
 cafe=>
 ```
+
+### Load Database Schema
+
+Load database schema from schema.sql file.
+
+```
+echo schema.sql | psql -U cafe -d cafe
+```
