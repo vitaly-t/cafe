@@ -1,0 +1,89 @@
+#!/bin/sh
+
+#
+# chkconfig: 35 99 99
+# description: Node.js /home/nodejs/cafe/webapp/cafe/bin/www
+#
+
+USER="nodejs"
+
+DAEMON="/home/nodejs/bin/node"
+ROOT_DIR="/home/nodejs/cafe/webapp/cafe"
+
+SERVER="$ROOT_DIR/bin/www"
+LOG_FILE="$ROOT_DIR/cafe.log"
+
+LOCK_FILE="/var/lock/subsys/cafe"
+
+echo_success()
+{
+    echo "ok"
+}
+
+echo_failure()
+{
+    echo "failed"
+}
+
+do_start()
+{
+        if [ ! -f "$LOCK_FILE" ] ; then
+                echo -n $"Starting $SERVER: "
+                runuser -l "$USER" -c "$DAEMON $SERVER >> $LOG_FILE &" && echo_success || echo_failure
+                RETVAL=$?
+                echo
+                [ $RETVAL -eq 0 ] && touch $LOCK_FILE
+        else
+                echo "$SERVER is locked."
+                RETVAL=1
+        fi
+}
+do_stop()
+{
+        echo -n $"Stopping $SERVER: "
+        pid=`ps -aefw | grep "$DAEMON $SERVER" | grep -v " grep " | awk '{print $2}'`
+        if [ -z "$pid" ] ; then
+            echo_success
+            echo
+            rm -f $LOCK_FILE
+            RETVAL=0
+        else
+            kill -9 $pid > /dev/null 2>&1 && echo_success || echo_failure
+            RETVAL=$?
+            echo
+            [ $RETVAL -eq 0 ] && rm -f $LOCK_FILE
+        fi
+}
+do_status()
+{
+        pid=`ps -aefw | grep "$DAEMON $SERVER" | grep -v " grep " | awk '{print $2}'`
+        if [ -z "$pid" ] ; then
+            echo "$SERVER is stopped."
+            RETVAL=3
+        else
+            echo "$SERVER ($pid) is running."
+            RETVAL=0
+        fi
+}
+
+case "$1" in
+        start)
+                do_start
+                ;;
+        stop)
+                do_stop
+                ;;
+        status)
+                do_status
+                ;;
+        restart)
+                do_stop
+                do_start
+                ;;
+        *)
+                echo "Usage: $0 {start|stop|restart|status}"
+                RETVAL=1
+esac
+
+exit $RETVAL
+
