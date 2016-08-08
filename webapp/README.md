@@ -27,3 +27,14 @@ tar --strip-components 1 -xzf node-v4.4.7-linux-x64.tar.gz
 npm install -g express
 npm install -g express-generator
 ```
+
+# Install the cafe service 
+
+```
+cp cafe/webapp/cafeservice /etc/init.d/
+chmod 755 /etc/init.d/cafeservice
+chkconfig --add cafeservice # on fedora based systems
+chkconfig cafeservice on # on fedora based systems
+update-rc.d cafeservice defaults # on ubuntu
+service cafeservice start
+```
