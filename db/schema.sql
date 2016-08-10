@@ -34,10 +34,10 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: cf_day; Type: TABLE; Schema: public; Owner: cafe
+-- Name: cf_menu; Type: TABLE; Schema: public; Owner: cafe
 --
 
-CREATE TABLE cf_day (
+CREATE TABLE cf_menu (
     id integer NOT NULL,
     dt date NOT NULL,
     menu_type_id integer NOT NULL,
@@ -45,13 +45,13 @@ CREATE TABLE cf_day (
 );
 
 
-ALTER TABLE cf_day OWNER TO cafe;
+ALTER TABLE cf_menu OWNER TO cafe;
 
 --
--- Name: cf_day_id_seq; Type: SEQUENCE; Schema: public; Owner: cafe
+-- Name: cf_menu_id_seq; Type: SEQUENCE; Schema: public; Owner: cafe
 --
 
-CREATE SEQUENCE cf_day_id_seq
+CREATE SEQUENCE cf_menu_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -59,13 +59,13 @@ CREATE SEQUENCE cf_day_id_seq
     CACHE 1;
 
 
-ALTER TABLE cf_day_id_seq OWNER TO cafe;
+ALTER TABLE cf_menu_id_seq OWNER TO cafe;
 
 --
--- Name: cf_day_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cafe
+-- Name: cf_menu_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cafe
 --
 
-ALTER SEQUENCE cf_day_id_seq OWNED BY cf_day.id;
+ALTER SEQUENCE cf_menu_id_seq OWNED BY cf_day.id;
 
 
 --
@@ -290,7 +290,7 @@ ALTER SEQUENCE cf_pos_id_seq OWNED BY cf_pos.id;
 -- Name: id; Type: DEFAULT; Schema: public; Owner: cafe
 --
 
-ALTER TABLE ONLY cf_day ALTER COLUMN id SET DEFAULT nextval('cf_day_id_seq'::regclass);
+ALTER TABLE ONLY cf_menu ALTER COLUMN id SET DEFAULT nextval('cf_day_id_seq'::regclass);
 
 
 --
@@ -336,16 +336,19 @@ ALTER TABLE ONLY cf_pos ALTER COLUMN id SET DEFAULT nextval('cf_pos_id_seq'::reg
 
 
 --
--- Data for Name: cf_day; Type: TABLE DATA; Schema: public; Owner: cafe
+-- Data for Name: cf_menu; Type: TABLE DATA; Schema: public; Owner: cafe
 --
 
+INSERT INTO cf_menu (id, dt, menu_type_id, notes) VALUES (1, '2016-08-01', 1, 'Test Day 1');
+INSERT INTO cf_menu (id, dt, menu_type_id, notes) VALUES (2, '2016-08-02', 1, 'Test Day 2');
+INSERT INTO cf_menu (id, dt, menu_type_id, notes) VALUES (3, '2016-08-03', 1, 'Test Day 3');
 
 
 --
--- Name: cf_day_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cafe
+-- Name: cf_menu_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cafe
 --
 
-SELECT pg_catalog.setval('cf_day_id_seq', 1, false);
+SELECT pg_catalog.setval('cf_menu_id_seq', 3, true);
 
 
 --
@@ -436,19 +439,19 @@ SELECT pg_catalog.setval('cf_pos_id_seq', 1, false);
 
 
 --
--- Name: cf_day_dt; Type: CONSTRAINT; Schema: public; Owner: cafe
+-- Name: cf_menu_dt; Type: CONSTRAINT; Schema: public; Owner: cafe
 --
 
-ALTER TABLE ONLY cf_day
-    ADD CONSTRAINT cf_day_dt UNIQUE (dt);
+ALTER TABLE ONLY cf_menu
+    ADD CONSTRAINT cf_menu_dt UNIQUE (dt);
 
 
 --
--- Name: cf_day_pkey; Type: CONSTRAINT; Schema: public; Owner: cafe
+-- Name: cf_menu_pkey; Type: CONSTRAINT; Schema: public; Owner: cafe
 --
 
-ALTER TABLE ONLY cf_day
-    ADD CONSTRAINT cf_day_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY cf_menu
+    ADD CONSTRAINT cf_menu_pkey PRIMARY KEY (id);
 
 
 --
@@ -540,11 +543,11 @@ ALTER TABLE ONLY cf_pos
 
 
 --
--- Name: cf_day_menu_type_fk; Type: FK CONSTRAINT; Schema: public; Owner: cafe
+-- Name: cf_menu_menu_type_fk; Type: FK CONSTRAINT; Schema: public; Owner: cafe
 --
 
-ALTER TABLE ONLY cf_day
-    ADD CONSTRAINT cf_day_menu_type_fk FOREIGN KEY (menu_type_id) REFERENCES cf_menu_type(id) MATCH FULL;
+ALTER TABLE ONLY cf_menu
+    ADD CONSTRAINT cf_menu_menu_type_fk FOREIGN KEY (menu_type_id) REFERENCES cf_menu_type(id) MATCH FULL;
 
 
 --
@@ -560,7 +563,7 @@ ALTER TABLE ONLY cf_food
 --
 
 ALTER TABLE ONLY cf_menu_item
-    ADD CONSTRAINT cf_menu_item_day_fk FOREIGN KEY (day_id) REFERENCES cf_day(id) MATCH FULL;
+    ADD CONSTRAINT cf_menu_item_day_fk FOREIGN KEY (day_id) REFERENCES cf_menu(id) MATCH FULL;
 
 
 --
