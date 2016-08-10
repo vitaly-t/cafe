@@ -21,9 +21,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
 // expose node_modules components to browser
 app.use('/node_modules',  express.static(__dirname + '/node_modules'));
+// add moment to locals
+app.locals.moment = require('moment');
 
 app.use('/', routes);
 app.use('/users', users);

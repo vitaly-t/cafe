@@ -1,16 +1,27 @@
 extends ../node_modules/jade-bootstrap/_bootstrap
 append styles
+    // Bootstrap theme
+    link(rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css")
     // Custom styles for this template
-    link(href='node_modules/jade-bootstrap/css/starter-template.css', rel='stylesheet')
+    link(href='node_modules/jade-bootstrap/css/theme.css', rel='stylesheet')
 block body
-    +navbar-fixed("Project name","navbar","inverse")
-        +nav_item("#","active") Home
-        +nav_item("#") About
-        +nav_item("#") Contact
-    .container
-        .starter-template
-            h1 Bootstrap starter template
-            p.lead
-                | Use this document as a way to quickly start any new project.
-                br
-                |  All you get is this text and a mostly barebones HTML document.
+    +navbar-fixed("Arkadia Cafe","navbar","inverse")
+        +nav_item("/","active") Strona Główna
+        +nav_item("/views") Podgląd
+        +nav_item("/logout") Wyloguj
+    .container.theme-showcase(role='main')
+        p
+            a.btn.btn-lg.btn-default(href='menu', type='button') Dodaj Menu
+        table.table(class="table-condensed table-hover")
+            thead
+                tr
+                    th Data
+                    th Typ
+                    th Notatki
+            tbody
+                each day, i in days
+                    tr(onclick="window.location='menu?id=#{day.id}'")
+                        td #{moment(day.dt).format("DD-MM-YYYY")}
+                        td #{day.type_name}
+                        td #{day.notes}
+
