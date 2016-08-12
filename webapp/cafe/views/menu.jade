@@ -19,14 +19,14 @@ block body
 append scripts
     script.
 
-        var api+url = "/cafe/api";
+        var url = "api";
 
-        // Load lists
-        function loadList(what, f) {
-            $.get(url+"/"+encodeURIComponent(what))
+        // Load object
+        function loadObject(edge, id, callback) {
+            $.get(url+"/"+edge+"/"+encodeURIComponent(id))
                 .done(function(data) {
-                    console.log("Got " + what + " from the server.");
-                    f(data)
+                    console.log("Got " + what + " from the server:", data);
+                    callback(data);
                 })
                 .fail(function(err) {
                     msg = "Getting " + + " from the server failed.";
@@ -36,6 +36,25 @@ append scripts
                 });
         }
 
-        $( "#menu" ).append( "<p>Test</p>" );
+        $( document ).ready( function() {
+            // Load references  
+            var kitchens = [];
+            loadObject("kitchens", "", function(data) {
+                kitchens = data;
+            });
+            var poses = [];
+            loadObject("poses", "", function(data) {
+                poses = data;
+            });
+            var foods = [];
+            loadObject("foods", "", function(data) {
+                foods = data;
+            });
+
+            $( "#menu" ).append( "<p>Test</p>" );
+        });
+
+
+        
 
 
