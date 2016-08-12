@@ -18,6 +18,24 @@ block body
 
 append scripts
     script.
+
+        var api+url = "/cafe/api";
+
+        // Load lists
+        function loadList(what, f) {
+            $.get(url+"/"+encodeURIComponent(what))
+                .done(function(data) {
+                    console.log("Got " + what + " from the server.");
+                    f(data)
+                })
+                .fail(function(err) {
+                    msg = "Getting " + + " from the server failed.";
+                    console.error(msg);
+                    console.log(err);
+                    window.alert(msg);
+                });
+        }
+
         $( "#menu" ).append( "<p>Test</p>" );
 
 
