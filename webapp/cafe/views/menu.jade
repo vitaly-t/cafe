@@ -17,15 +17,15 @@ block body
         #menu
 
 append scripts
+    script( src='node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' )
     script.
-
         var url = "api";
 
         // Load object
         function loadObject(edge, id, callback) {
             $.get(url+"/"+edge+"/"+encodeURIComponent(id))
                 .done(function(data) {
-                    console.log("Got " + what + " from the server:", data);
+                    console.log("Got " + edge + " from the server:", data);
                     callback(data);
                 })
                 .fail(function(err) {
@@ -51,7 +51,35 @@ append scripts
                 foods = data;
             });
 
-            $( "#menu" ).append( "<p>Test</p>" );
+            // Build the form
+            var form_top = $('<div>').addClass('form-horizontal').attr('role', 'form').append(
+                $('<div>').addClass('form-group').append(
+                    $('<label>').addClass('control-label col-sm-2').text("XXX"),
+                    $('<div>').addClass('col-sm-9').append(
+                        $('<input>').addClass('form-control datepicker').attr('id', 'aaa')
+                    ),
+                    $('<div>').addClass('col-sm-1')
+                ),
+                $('<div>').addClass('form-group').append(
+                    $('<label>').addClass('control-label col-sm-2').text(""),
+                    $('<div>').addClass('col-sm-9').append(
+                        $('<input>').addClass('form-control').attr('id', 'aaa')
+                    ),
+                    $('<div>').addClass('col-sm-1')
+                ),
+                $('<div>').addClass('form-group').append(
+                    $('<div>').addClass('col-sm-offset-2 col-sm-9').append(
+                        $('<div>').addClass('btn-toolbar').attr('id', 'bbb')
+                    ),
+                    $('<div>').addClass('col-sm-1')
+                )
+            );
+
+            $('#menu').append(form_top);
+            $('.datepicker').datepicker();
+
+
+
         });
 
 
