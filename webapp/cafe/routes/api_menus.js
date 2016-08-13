@@ -46,7 +46,7 @@ router.get('/:id', promise.coroutine(function*(req, res, next) {
     try {
         var client = yield db.connect();
         var sql =
-            " SELECT m.id, m.dt, m.menu_type_id, t.name, m.notes " +
+            " SELECT m.id, m.dt, m.menu_type_id, t.name AS menu_type_name, m.notes " +
             " FROM cf_menu m " +
             " JOIN cf_menu_type t ON m.menu_type_id = t.id " +
 			" WHERE m.id = $1 ";
@@ -56,7 +56,17 @@ router.get('/:id', promise.coroutine(function*(req, res, next) {
             console.log(err);
             return res.status(400).send(err);
         }
-        return res.send(rows[0]);
+        var menu = rows[0];
+        var sql = 
+            " SELECT i.id, i.food_id, f.name AS food_name, i.kitchen_id, k.name as kitchen_name, i.pos_id, p.name as pos_name, i.portions, i.portions_extra, i.portions_returned " +
+            " FROM cf_menu_item i " +
+            " JOIN cf_food f ON i.food_id = f.id " +
+            " JOIN cf_kitchen k ON i.kitchen_id = k.id " +
+            " JOIN cf_pos p ON i.pos_id = p.id " +
+            " WHERE i.menu_id = $1 ";
+        var rows = yield client.query(sql, [req.params.id]);
+        menu.menu_items = rows;
+        return res.send(menu);
     } catch (err) {
         console.log(err);
         return res.status(500).send(err);

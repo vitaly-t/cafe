@@ -22,7 +22,6 @@ append scripts
 
         // Build the form
         function render(kitchens, poses, foods, menu_types) {
-
             var form_top = $('<div>').addClass('form-horizontal').attr('role', 'form').append(
                 $('<div>').addClass('form-group').append(
                     $('<label>').addClass('control-label col-sm-2').text("Data"),
@@ -50,8 +49,18 @@ append scripts
                     $('<div>').addClass('col-sm-1')
                 )
             );
+            var form_menu_items =  $('<table>').addClass('table').append(
+                $('<thead>').append(
+                    $('<tr>').append(
+                        $('<th>').text("A"),
+                        $('<th>').text("B"),
+                        $('<th>').text("C")
+                    )
+                )
+            );
 
             $('#menu').append(form_top);
+            $('#menu').append(form_menu_items);
             $('.datepicker').datepicker();
         }
 
