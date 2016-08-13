@@ -29,7 +29,7 @@ append scripts
                     callback(data);
                 })
                 .fail(function(err) {
-                    msg = "Getting " + + " from the server failed.";
+                    msg = "Getting " + edge + " from the server failed.";
                     console.error(msg);
                     console.log(err);
                     window.alert(msg);
@@ -37,6 +37,8 @@ append scripts
         }
 
         $( document ).ready( function() {
+
+
             // Load references  
             var kitchens = [];
             loadObject("kitchens", "", function(data) {
@@ -50,26 +52,38 @@ append scripts
             loadObject("foods", "", function(data) {
                 foods = data;
             });
+            var menu_types = [];
+            loadObject("menu_types", "", function(data) {
+                menu_types = data;
+            });
+
+            $.when($.ajax("/api/kitchens"), $.ajax("/api/poses"), $.ajax("/api/foods"), $.ajax("/api/kitchens"))
+                .then(
 
             // Build the form
             var form_top = $('<div>').addClass('form-horizontal').attr('role', 'form').append(
                 $('<div>').addClass('form-group').append(
-                    $('<label>').addClass('control-label col-sm-2').text("XXX"),
+                    $('<label>').addClass('control-label col-sm-2').text("Data"),
                     $('<div>').addClass('col-sm-9').append(
-                        $('<input>').addClass('form-control datepicker').attr('id', 'aaa')
+                        $('<input>').addClass('form-control datepicker').attr('id', 'menu_date')
                     ),
                     $('<div>').addClass('col-sm-1')
                 ),
                 $('<div>').addClass('form-group').append(
-                    $('<label>').addClass('control-label col-sm-2').text(""),
+                    $('<label>').addClass('control-label col-sm-2').text("Typ"),
                     $('<div>').addClass('col-sm-9').append(
-                        $('<input>').addClass('form-control').attr('id', 'aaa')
+                        $('<select>').addClass('form-control').attr('id', 'menu_type').append(
+                            $.each(menu_types, function(id, name, description) {
+                                return $('<option>').value(id).text(name)
+                            })
+                        )
                     ),
                     $('<div>').addClass('col-sm-1')
                 ),
                 $('<div>').addClass('form-group').append(
-                    $('<div>').addClass('col-sm-offset-2 col-sm-9').append(
-                        $('<div>').addClass('btn-toolbar').attr('id', 'bbb')
+                    $('<label>').addClass('control-label col-sm-2').text("Notatki"),
+                    $('<div>').addClass('col-sm-9').append(
+                        $('<input>').addClass('form-control').attr('id', 'menu_notes')
                     ),
                     $('<div>').addClass('col-sm-1')
                 )
