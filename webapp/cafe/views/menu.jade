@@ -22,10 +22,45 @@ append scripts
         // Add vs Edit
         var menuId=#{menuId};
 
+        function onSave() {
+            var m = {};
+            m.id = menuId;
+            m.dt = $("#menu_date").text();
+            m.menu_type_id = $("#menu_type").val();
+            m.notes = $("#menu_notes").text();
+            m.menu_items = []
+            $("[id=kitchen_id]").each(function(idx, obj) {
+                m.menu_items[idx] = {}
+                m.menu_items[idx].kitchen_id = $(obj).val();
+            });
+            $("[id=pos_id]").each(function(idx, obj) {
+                m.menu_items[idx].pos_id = $(obj).val();
+            });
+            $("[id=food_id]").each(function(idx, obj) {
+                m.menu_items[idx].food_id = $(obj).val();
+            });
+            $("[id=qty]").each(function(idx, obj) {
+                m.menu_items[idx].qty = $(obj).val();
+            });
+            $("[id=qty_extra]").each(function(idx, obj) {
+                m.menu_items[idx].qty_extra = $(obj).val();
+            });
+            $("[id=qty_returned]").each(function(idx, obj) {
+                m.menu_items[idx].qty_returned = $(obj).val();
+            });
+            console.log(m);
+        }
+
+        function onCancel() {
+        }
+
+        function onAddItem() {
+        }
+
         // Build the form
         function render(menu, kitchens, poses, foods, menu_types) {
             console.log(menu, kitchens, poses, foods, menu_types);
-            var form_top = $('<div>').addClass('form-horizontal').attr('role', 'form').append(
+            var form = $('<div>').addClass('form-horizontal').attr('role', 'form').append(
                 $('<div>').addClass('form-group').append(
                     $('<label>').addClass('control-label col-sm-2').text("Data"),
                     $('<div>').addClass('col-sm-9').append(
@@ -50,64 +85,69 @@ append scripts
                         $('<input>').addClass('form-control').attr('id', 'menu_notes')
                     ),
                     $('<div>').addClass('col-sm-1')
-                )
-            );
-            var form_menu_items =  $('<table>').addClass('table').append(
-                $('<thead>').append(
-                    $('<tr>').append(
-                        $('<th>').text("Kuchnia"),
-                        $('<th>').text("Dla"),
-                        $('<th>').text("Potrawa"),
-                        $('<th>').text("Zamówienie"),
-                        $('<th>').text("Zam. Extra"),
-                        $('<th>').text("Zwrot")
+                ),
+                $('<div>').addClass('form-group').append(
+                    $('<table>').addClass('table').append(
+                        $('<thead>').append(
+                            $('<tr>').append(
+                                $('<th>').text("Kuchnia"),
+                                $('<th>').text("Dla"),
+                                $('<th>').text("Potrawa"),
+                                $('<th>').text("Zamówienie"),
+                                $('<th>').text("Zam. Extra"),
+                                $('<th>').text("Zwrot")
+                            )
+                        ),
+                        $('<tbody>').append(
+                            $.map(menu.menu_items, function(i) {
+                                return $('<tr>').append(
+                                    $('<td>').append(
+                                        $('<select>').addClass('form-control').attr('id', 'kitchen_id').append(
+                                            $.map(kitchens, function(k) {
+                                                return $('<option>').val(k.id).text(k.name).prop('selected', i.kitchen_id == k.id);
+                                            })
+                                        )
+                                    ),
+                                    $('<td>').append(
+                                        $('<select>').addClass('form-control').attr('id', 'pos_id').append(
+                                            $.map(poses, function(p) {
+                                                return $('<option>').val(p.id).text(p.name).prop('selected', i.pos_id == p.id);
+                                            })
+                                        )
+                                    ),
+                                    $('<td>').append(
+                                        $('<select>').addClass('form-control').attr('id', 'food_id').append(
+                                            $.map(foods, function(f) {
+                                                return $('<option>').val(f.id).text(f.name).prop('selected', i.food_id == f.id);
+                                            })
+                                        )
+                                    ),
+                                    $('<td>').append(
+                                        $('<input>').addClass('form-control').attr('id', 'qty').val(i.qty)
+                                    ),
+                                    $('<td>').append(
+                                        $('<input>').addClass('form-control').attr('id', 'qty_extra').val(i.qty_extra)
+                                    ),
+                                    $('<td>').append(
+                                        $('<input>').addClass('form-control').attr('id', 'qty_returned').val(i.qty_returned)
+                                    )
+                                );
+                            })
+                        )
                     )
                 ),
-                $('<tbody>').append(
-                    $.map(menu.menu_items, function(i) {
-                        return $('<tr>').append(
-                            $('<td>').append(
-                                $('<select>').addClass('form-control').attr('id', 'menu_type').append(
-                                    $.map(kitchens, function(k) {
-                                        return $('<option>').val(k.id).text(k.name).prop('selected', i.kitchen_id == k.id);
-                                    })
-                                )
-                            ),
-                            $('<td>').append(
-                                $('<select>').addClass('form-control').attr('id', 'menu_type').append(
-                                    $.map(poses, function(p) {
-                                        return $('<option>').val(p.id).text(p.name).prop('selected', i.pos_id == p.id);
-                                    })
-                                )
-                            ),
-                            $('<td>').append(
-                                $('<select>').addClass('form-control').attr('id', 'menu_type').append(
-                                    $.map(foods, function(f) {
-                                        return $('<option>').val(f.id).text(f.name).prop('selected', i.food_id == f.id);
-                                    })
-                                )
-                            ),
-                            $('<td>').append(
-                                $('<input>').addClass('form-control').attr('id', 'qty').val(i.qty)
-                            ),
-                            $('<td>').append(
-                                $('<input>').addClass('form-control').attr('id', 'qty_extra').val(i.qty_extra)
-                            ),
-                            $('<td>').append(
-                                $('<input>').addClass('form-control').attr('id', 'qty_returned').val(i.qty_returned)
-                            )
-                        );
-                    }),
-                    $('<tr>').append(
-                        $('<tr>').attr('colspan', 5).append(
-                            $('<input>').attr('type', 'button').addClass('button').addClass('btn-default').val('Dodaj Pozycje Menu')
-                        )
+                $('<div>').addClass('form-group').append(
+                    $('<div>').addClass('col-md-6').addClass('btn-toolbar').append(
+                        $('<input>').attr('type', 'button').addClass('btn').addClass('btn-default').val('Dodaj Pozycje Menu').click(onAddItem)
+                    ),
+                    $('<div>').addClass('col-md-6').addClass('btn-toolbar').addClass('text-right').append(
+                        $('<input>').attr('type', 'button').addClass('btn').addClass('btn-default').val('Zapisz').click(onSave),
+                        $('<input>').attr('type', 'button').addClass('btn').addClass('btn-default').val('Anuluj').click(onCancel)
                     )
                 )
             );
             
-            $('#menu').append(form_top);
-            $('#menu').append(form_menu_items);
+            $('#menu').append(form);
             $('.datepicker').datepicker();
         }
 
