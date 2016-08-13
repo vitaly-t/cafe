@@ -48,10 +48,24 @@ append scripts
             $("[id=qty_returned]").each(function(idx, obj) {
                 m.menu_items[idx].qty_returned = $(obj).val();
             });
-            console.log(m);
+            console.log("Saving menu to server:", m);
+            $.ajax({
+                method: "POST",
+                url: (menuId)?("/api/menus/"+menuId):("/api/menus"),
+                data: m
+            })
+            .done(function(msg) {
+                console.log("Menu saved");
+                window.location = "/menus";
+            })
+            .fail(function(err) {
+                console.error(err);
+                window.alert(err);
+            });
         }
 
         function onCancel() {
+            window.location = "/menus";
         }
 
         function onAddItem() {

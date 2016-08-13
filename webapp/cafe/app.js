@@ -8,6 +8,7 @@ var expressValidator = require('express-validator');
 
 var routes = require('./routes/index');
 var menu = require('./routes/menu');
+var menus = require('./routes/menus');
 var api_menus = require('./routes/api_menus');
 var api_kitchens = require('./routes/api_kitchens');
 var api_poses = require('./routes/api_poses');
@@ -35,6 +36,7 @@ app.locals.moment = require('moment');
 
 app.use('/', routes);
 app.use('/menu', menu);
+app.use('/menus', menus);
 app.use('/api/menus', api_menus);
 app.use('/api/kitchens', api_kitchens);
 app.use('/api/poses', api_poses);
