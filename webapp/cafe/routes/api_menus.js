@@ -109,4 +109,46 @@ router.post('/', promise.coroutine(function*(req, res, next) {
 }));
 
 
+// Save menu
+router.post('/:id', promise.coroutine(function*(req, res, next) {
+	req.checkBody("dt", "Data jest wymagana.").notEmpty();
+	req.checkBody("menu_type_id", "Typ menu jest wymagany.").notEmpty();
+    var errors = req.validationErrors();
+    if (errors) {
+        err = 'Błąd walidacji: ' + util.inspect(errors);
+        console.log(err);
+        return res.status(400).send(err);
+    }
+    try {
+        var client = yield db.connect();
+        yield client.query("BEGIN TRANSACTION");
+        var sql = 
+			" UPDATE cf_menu " +
+			" SET dt = $2, menu_type_id = $3, notes = $4 " +
+            " WHERE id = $1 ";
+		params = [req.params.id, req.body.dt, req.body.menu_type_id, req.body.notes];
+        yield client.query(sql, params);
+        var sql = 
+			" DELETE FROM cf_menu_item  " +
+			" WHERE menu_id = $1 ";
+		params = [req.params.id];
+        yield client.query(sql, params);
+        var i;
+        for (i = 0; i < req.body.menu_items; i++) {
+            var item = req.body.menu_items[i];
+            var sql = 
+                " INSERT INTO cf_menu_item(menu_id, food_id, kitchen_id, pos_id, qty, qty_extra, qty_returned) " +
+                " VALUES($1, $2, $3, $4, $5, $6, $7) ";
+            params = [item.menu_id, item, food_id, item.kitchen_id, item.pos_id, item.qty, item.qty_extra, item.qty_returned];
+            yield client.query(sql, params);
+        }
+        return res.send();
+    } catch (err) {
+        console.log(err);
+        return res.status(500).send(err);
+    } finally {
+        if (client) client.done();
+    }
+}));
+
 module.exports = router;

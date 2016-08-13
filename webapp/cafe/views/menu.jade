@@ -25,9 +25,9 @@ append scripts
         function onSave() {
             var m = {};
             m.id = menuId;
-            m.dt = $("#menu_date").text();
+            m.dt = $("#menu_date").val();
             m.menu_type_id = $("#menu_type").val();
-            m.notes = $("#menu_notes").text();
+            m.notes = $("#menu_notes").val();
             m.menu_items = []
             $("[id=kitchen_id]").each(function(idx, obj) {
                 m.menu_items[idx] = {}
@@ -59,8 +59,8 @@ append scripts
                 window.location = "/menus";
             })
             .fail(function(err) {
-                console.error(err);
-                window.alert(err);
+                console.error("Saving menu failed", err);
+                window.alert("Błąd zapisu: " + err.responseText);
             });
         }
 
@@ -78,7 +78,7 @@ append scripts
                 $('<div>').addClass('form-group').append(
                     $('<label>').addClass('control-label col-sm-2').text("Data"),
                     $('<div>').addClass('col-sm-9').append(
-                        $('<input>').addClass('form-control datepicker').attr('id', 'menu_date')
+                        $('<input>').addClass('form-control datepicker').attr('id', 'menu_date').val(menu.dt)
                     ),
                     $('<div>').addClass('col-sm-1')
                 ),
@@ -151,10 +151,10 @@ append scripts
                     )
                 ),
                 $('<div>').addClass('form-group').append(
-                    $('<div>').addClass('col-md-6').addClass('btn-toolbar').append(
+                    $('<div>').addClass('col-md-6 btn-toolbar').append(
                         $('<input>').attr('type', 'button').addClass('btn').addClass('btn-default').val('Dodaj Pozycje Menu').click(onAddItem)
                     ),
-                    $('<div>').addClass('col-md-6').addClass('btn-toolbar').addClass('text-right').append(
+                    $('<div>').addClass('col-md-6 btn-toolbar text-right').append(
                         $('<input>').attr('type', 'button').addClass('btn').addClass('btn-default').val('Zapisz').click(onSave),
                         $('<input>').attr('type', 'button').addClass('btn').addClass('btn-default').val('Anuluj').click(onCancel)
                     )
