@@ -58,7 +58,7 @@ router.get('/:id', promise.coroutine(function*(req, res, next) {
         }
         var menu = rows[0];
         var sql = 
-            " SELECT i.id, i.food_id, f.name AS food_name, i.kitchen_id, k.name as kitchen_name, i.pos_id, p.name as pos_name, i.portions, i.portions_extra, i.portions_returned " +
+            " SELECT i.id, i.food_id, f.name AS food_name, i.kitchen_id, k.name as kitchen_name, i.pos_id, p.name as pos_name, COALESCE(i.qty, 0) AS qty, COALESCE(i.qty_extra, 0) AS qty_extra, COALESCE(i.qty_returned, 0) AS qty_returned " +
             " FROM cf_menu_item i " +
             " JOIN cf_food f ON i.food_id = f.id " +
             " JOIN cf_kitchen k ON i.kitchen_id = k.id " +
