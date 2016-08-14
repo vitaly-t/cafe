@@ -66,6 +66,7 @@ router.get('/:id', promise.coroutine(function*(req, res, next) {
             " WHERE i.menu_id = $1 ";
         var rows = yield client.query(sql, [req.params.id]);
         menu.menu_items = rows;
+        console.log("Returning menu:", menu);
         return res.send(menu);
     } catch (err) {
         console.log(err);
@@ -78,18 +79,21 @@ router.get('/:id', promise.coroutine(function*(req, res, next) {
 
 // Create menu
 router.post('/', promise.coroutine(function*(req, res, next) {
-	req.checkBody("dt", "id must be a non-empty string.").notEmpty();
-	req.checkBody("menu_type_id", "menu_type_id must be a non-empty string.").notEmpty();
+    console.log("Creating menu:", req.body);
+    // validate and sanitize
+	req.checkBody("dt", "Data jest wymagana.").notEmpty();
+	req.checkBody("menu_type_id", "Typ menu jest wymagany.").notEmpty();
     var errors = req.validationErrors();
     if (errors) {
-        err = 'Validation errors: ' + util.inspect(errors);
-        console.log(err);
-        return res.status(400).send(err);
+        console.log("Validation errors:", errors);
+        return res.status(400).send(errors);
     }
+    // update implementation
     try {
         var client = yield db.connect();
+        yield client.query("BEGIN TRANSACTION");
         var sql = 
-			" INSERT INTO tasks(dt, menu_type_id, notes) " +
+			" INSERT INTO cf_menu(dt, menu_type_id, notes) " +
 			" VALUES ($1, $2, $3) " + 
 			" RETURNING id ";
 		params = [req.body.dt, req.body.menu_type_id, req.body.notes];
@@ -99,7 +103,20 @@ router.post('/', promise.coroutine(function*(req, res, next) {
             console.log(err);
             return res.status(400).send(err);
         }
-        return res.send({'id': rows[0].id});
+        menu_id = rows[0].id;
+        if (req.body.menu_items) {
+            var i;
+            for (i = 0; i<req.body.menu_items.length; i++) {
+                var item = req.body.menu_items[i];
+                var sql = 
+                    " INSERT INTO cf_menu_item(menu_id, food_id, kitchen_id, pos_id, qty, qty_extra, qty_returned) " +
+                    " VALUES($1, $2, $3, $4, $5, $6, $7) ";
+                params = [menu_id, item.food_id, item.kitchen_id, item.pos_id, parseFloat(item.qty), parseFloat(item.qty_extra), parseFloat(item.qty_returned)];
+                yield client.query(sql, params);
+            }
+        }
+        yield client.query("COMMIT TRANSACTION");
+        return res.send();
     } catch (err) {
         console.log(err);
         return res.status(500).send(err);
@@ -111,14 +128,16 @@ router.post('/', promise.coroutine(function*(req, res, next) {
 
 // Save menu
 router.post('/:id', promise.coroutine(function*(req, res, next) {
+    console.log("Saving menu id ", req.params.id, ":", req.body);
+    // validate and sanitize
 	req.checkBody("dt", "Data jest wymagana.").notEmpty();
 	req.checkBody("menu_type_id", "Typ menu jest wymagany.").notEmpty();
     var errors = req.validationErrors();
     if (errors) {
-        err = 'Błąd walidacji: ' + util.inspect(errors);
-        console.log(err);
-        return res.status(400).send(err);
+        console.log("Validation errors:", errors);
+        return res.status(400).send(errors);
     }
+    // update implementation
     try {
         var client = yield db.connect();
         yield client.query("BEGIN TRANSACTION");
@@ -133,15 +152,18 @@ router.post('/:id', promise.coroutine(function*(req, res, next) {
 			" WHERE menu_id = $1 ";
 		params = [req.params.id];
         yield client.query(sql, params);
-        var i;
-        for (i = 0; i < req.body.menu_items; i++) {
-            var item = req.body.menu_items[i];
-            var sql = 
-                " INSERT INTO cf_menu_item(menu_id, food_id, kitchen_id, pos_id, qty, qty_extra, qty_returned) " +
-                " VALUES($1, $2, $3, $4, $5, $6, $7) ";
-            params = [item.menu_id, item, food_id, item.kitchen_id, item.pos_id, item.qty, item.qty_extra, item.qty_returned];
-            yield client.query(sql, params);
+        if (req.body.menu_items) {
+            var i;
+            for (i = 0; i < req.body.menu_items.length; i++) {
+                var item = req.body.menu_items[i];
+                var sql = 
+                    " INSERT INTO cf_menu_item(menu_id, food_id, kitchen_id, pos_id, qty, qty_extra, qty_returned) " +
+                    " VALUES($1, $2, $3, $4, $5, $6, $7) ";
+                params = [req.params.id, item.food_id, item.kitchen_id, item.pos_id, parseFloat(item.qty), parseFloat(item.qty_extra), parseFloat(item.qty_returned)];
+                yield client.query(sql, params);
+            }
         }
+        yield client.query("COMMIT TRANSACTION");
         return res.send();
     } catch (err) {
         console.log(err);

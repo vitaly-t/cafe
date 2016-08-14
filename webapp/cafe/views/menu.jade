@@ -19,8 +19,8 @@ block body
 append scripts
     script( src='/node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' )
     script.
-        // Add vs Edit
         var menuId=#{menuId};
+        var kitchens, poses, foods, menu_types;
 
         function onSave() {
             var m = {};
@@ -69,11 +69,52 @@ append scripts
         }
 
         function onAddItem() {
+            var i = {};
+            $('#menu_items').append(
+                renderMenuItem(i)
+            );
         }
 
-        // Build the form
-        function render(menu, kitchens, poses, foods, menu_types) {
-            console.log(menu, kitchens, poses, foods, menu_types);
+        // Build menu item html
+        function renderMenuItem(i) {
+            console.log("Rendering menu item", i);
+            return $('<tr>').append(
+                $('<td>').append(
+                    $('<select>').addClass('form-control').attr('id', 'kitchen_id').append(
+                        $.map(kitchens, function(k) {
+                            return $('<option>').val(k.id).text(k.name).prop('selected', i.kitchen_id == k.id);
+                        })
+                    )
+                ),
+                $('<td>').append(
+                    $('<select>').addClass('form-control').attr('id', 'pos_id').append(
+                        $.map(poses, function(p) {
+                            return $('<option>').val(p.id).text(p.name).prop('selected', i.pos_id == p.id);
+                        })
+                    )
+                ),
+                $('<td>').append(
+                    $('<select>').addClass('form-control').attr('id', 'food_id').append(
+                        $.map(foods, function(f) {
+                            return $('<option>').val(f.id).text(f.name).prop('selected', i.food_id == f.id);
+                        })
+                    )
+                ),
+                $('<td>').append(
+                    $('<input>').addClass('form-control').attr('id', 'qty').val(i.qty)
+                ),
+                $('<td>').append(
+                    $('<input>').addClass('form-control').attr('id', 'qty_extra').val(i.qty_extra)
+                ),
+                $('<td>').append(
+                    $('<input>').addClass('form-control').attr('id', 'qty_returned').val(i.qty_returned)
+                )
+            );
+        }
+
+        // build menu html
+        function renderMenu(menu) {
+            console.log("Rendering menu", menu);
             var form = $('<div>').addClass('form-horizontal').attr('role', 'form').append(
                 $('<div>').addClass('form-group').append(
                     $('<label>').addClass('control-label col-sm-2').text("Data"),
@@ -96,7 +137,7 @@ append scripts
                 $('<div>').addClass('form-group').append(
                     $('<label>').addClass('control-label col-sm-2').text("Notatki"),
                     $('<div>').addClass('col-sm-9').append(
-                        $('<input>').addClass('form-control').attr('id', 'menu_notes')
+                        $('<input>').addClass('form-control').attr('id', 'menu_notes').val(menu.notes)
                     ),
                     $('<div>').addClass('col-sm-1')
                 ),
@@ -112,40 +153,9 @@ append scripts
                                 $('<th>').text("Zwrot")
                             )
                         ),
-                        $('<tbody>').append(
+                        $('<tbody>').attr('id', 'menu_items').append(
                             $.map(menu.menu_items, function(i) {
-                                return $('<tr>').append(
-                                    $('<td>').append(
-                                        $('<select>').addClass('form-control').attr('id', 'kitchen_id').append(
-                                            $.map(kitchens, function(k) {
-                                                return $('<option>').val(k.id).text(k.name).prop('selected', i.kitchen_id == k.id);
-                                            })
-                                        )
-                                    ),
-                                    $('<td>').append(
-                                        $('<select>').addClass('form-control').attr('id', 'pos_id').append(
-                                            $.map(poses, function(p) {
-                                                return $('<option>').val(p.id).text(p.name).prop('selected', i.pos_id == p.id);
-                                            })
-                                        )
-                                    ),
-                                    $('<td>').append(
-                                        $('<select>').addClass('form-control').attr('id', 'food_id').append(
-                                            $.map(foods, function(f) {
-                                                return $('<option>').val(f.id).text(f.name).prop('selected', i.food_id == f.id);
-                                            })
-                                        )
-                                    ),
-                                    $('<td>').append(
-                                        $('<input>').addClass('form-control').attr('id', 'qty').val(i.qty)
-                                    ),
-                                    $('<td>').append(
-                                        $('<input>').addClass('form-control').attr('id', 'qty_extra').val(i.qty_extra)
-                                    ),
-                                    $('<td>').append(
-                                        $('<input>').addClass('form-control').attr('id', 'qty_returned').val(i.qty_returned)
-                                    )
-                                );
+                                return renderMenuItem(i);
                             })
                         )
                     )
@@ -165,28 +175,35 @@ append scripts
             $('.datepicker').datepicker();
         }
 
-        $.when($.ajax("/api/kitchens"), $.ajax("/api/poses"), $.ajax("/api/foods"), $.ajax("/api/menu_types"))
-            .done(function(res_kitchens, res_poses, res_foods, res_menu_types) {
-                if (menuId) {
-                    $.ajax("/api/menus/"+menuId)
-                        .done(function(menu) {
-                            render(menu, res_kitchens[0], res_poses[0], res_foods[0], res_menu_types[0]);
-                        })
-                        .fail(function(err) {
-                            window.alert((err.status == 400)?"Menu " + menuId + " nie istnieje.":"Wystąpił błąd.");
-                            console.error("Getting data from server failed", err);
-                        });
-                }
-                else {
-                    var blank_menu = {menu_items:[]};
-                    render(blank_menu, res_kitchens[0], res_poses[0], res_foods[0], res_menu_types[0]);
-                }
+        // Document is ready and loaded
+        $(document).ready(function() {
+            $.when($.ajax("/api/kitchens"), $.ajax("/api/poses"), $.ajax("/api/foods"), $.ajax("/api/menu_types"))
+                .done(function(res_kitchens, res_poses, res_foods, res_menu_types) {
+                    kitchens = res_kitchens[0];
+                    poses = res_poses[0];
+                    foods = res_foods[0];
+                    menu_types = res_menu_types[0];
+                    if (menuId) {
+                        $.ajax("/api/menus/"+menuId)
+                            .done(function(menu) {
+                                renderMenu(menu);
+                            })
+                            .fail(function(err) {
+                                window.alert((err.status == 400)?"Menu " + menuId + " nie istnieje.":"Wystąpił błąd.");
+                                console.error("Getting data from server failed", err);
+                            });
+                    }
+                    else {
+                        var blank_menu = {menu_items:[]};
+                        renderMenu(blank_menu);
+                    }
 
-            })
-            .fail(function(err) {
-                console.error("Getting data from server failed", err);
-                window.alert("Wystąpił błąd.");
-            });
+                })
+                .fail(function(err) {
+                    console.error("Getting data from server failed", err);
+                    window.alert("Wystąpił błąd.");
+                });
+        });
 
 
 
