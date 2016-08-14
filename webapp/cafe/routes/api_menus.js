@@ -119,6 +119,7 @@ router.post('/', promise.coroutine(function*(req, res, next) {
         return res.send();
     } catch (err) {
         console.log(err);
+        yield client.query("ROLLBACK TRANSACTION");
         return res.status(500).send(err);
     } finally {
         if (client) client.done();
@@ -167,6 +168,7 @@ router.post('/:id', promise.coroutine(function*(req, res, next) {
         return res.send();
     } catch (err) {
         console.log(err);
+        yield client.query("ROLLBACK TRANSACTION");
         return res.status(500).send(err);
     } finally {
         if (client) client.done();

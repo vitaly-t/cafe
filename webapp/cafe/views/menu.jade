@@ -5,19 +5,22 @@ append styles
     link(rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css")
     // Custom styles for this template
     link(href='/node_modules/jade-bootstrap/css/theme.css', rel='stylesheet')
+    // Datepicker
+    link(href='/node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css', rel='stylesheet')
 
 block body
     +navbar-fixed("Arkadia Cafe","navbar","inverse")
-        +nav_item("/","active") Menu
-        +nav_item("/views") Podgląd
+        +nav_item("/menus","active") Menu
         +nav_item("/logout") Wyloguj
     .container.theme-showcase(role='main')
         .page-header
-            h1 Menu
+            h1 Edycja Menu
         #menu
 
 append scripts
     script( src='/node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' )
+    script( src='/node_modules/bootstrap-datepicker/dist/locales/bootstrap-datepicker.pl.min.js' )
+        
     script.
         var menuId=#{menuId};
         var kitchens, poses, foods, menu_types;
@@ -172,7 +175,13 @@ append scripts
             );
             
             $('#menu').append(form);
-            $('.datepicker').datepicker();
+
+            $('.datepicker').datepicker({
+                language: "pl",
+                format: "mm/dd/yyyy",
+                todayHighlight: true,
+                todayBtn: true,
+            });
         }
 
         // Document is ready and loaded
