@@ -7,6 +7,7 @@ var options = {
 var pgp = require('pg-promise')(options);
 var util = require('util');
 var esc = require('pg-escape');
+var moment = require('moment');
 
 var express = require('express');
 var router = express.Router();
@@ -18,8 +19,10 @@ var db = pgp(config.db);
 router.get('/', promise.coroutine(function*(req, res, next) {
     try {
         var client = yield db.connect();
+        // Cast date to varchar to avoid Node converting it to full 
+        // date with local time which causes dates to jump 
         var sql = 
-            " SELECT m.id, m.dt, m.menu_type_id, t.name, m.notes " +
+            " SELECT m.id, m.dt::VARCHAR(64), m.menu_type_id, t.name, m.notes " +
             " FROM cf_menu m " +
             " JOIN cf_menu_type t ON m.menu_type_id = t.id ";
         var rows = yield client.query(sql);
@@ -45,8 +48,10 @@ router.get('/:id', promise.coroutine(function*(req, res, next) {
     }
     try {
         var client = yield db.connect();
+        // Cast date to varchar to avoid Node converting it to full 
+        // date with local time which causes dates to jump 
         var sql =
-            " SELECT m.id, m.dt, m.menu_type_id, t.name AS menu_type_name, m.notes " +
+            " SELECT m.id, m.dt::VARCHAR(64), m.menu_type_id, t.name AS menu_type_name, m.notes " +
             " FROM cf_menu m " +
             " JOIN cf_menu_type t ON m.menu_type_id = t.id " +
 			" WHERE m.id = $1 ";

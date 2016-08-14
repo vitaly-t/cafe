@@ -18,17 +18,23 @@ block body
         #menu
 
 append scripts
+    // Datepicker
     script( src='/node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' )
     script( src='/node_modules/bootstrap-datepicker/dist/locales/bootstrap-datepicker.pl.min.js' )
+    // Moment
+    script( src='/node_modules/moment/min/moment.min.js' )
         
     script.
+        var DATE_FORMAT = "YYYY-MM-DD";
+        var DATE_FORMAT_PICKER = "yyyy-mm-dd";
+
         var menuId=#{menuId};
         var kitchens, poses, foods, menu_types;
 
         function onSave() {
             var m = {};
             m.id = menuId;
-            m.dt = $("#menu_date").val();
+            m.dt = moment($("#menu_date").val()).format(DATE_FORMAT);
             m.menu_type_id = $("#menu_type").val();
             m.notes = $("#menu_notes").val();
             m.menu_items = []
@@ -122,7 +128,7 @@ append scripts
                 $('<div>').addClass('form-group').append(
                     $('<label>').addClass('control-label col-sm-2').text("Data"),
                     $('<div>').addClass('col-sm-9').append(
-                        $('<input>').addClass('form-control datepicker').attr('id', 'menu_date').val(menu.dt)
+                        $('<input>').addClass('form-control datepicker').attr('id', 'menu_date').val(moment(menu.dt).format(DATE_FORMAT))
                     ),
                     $('<div>').addClass('col-sm-1')
                 ),
@@ -178,7 +184,7 @@ append scripts
 
             $('.datepicker').datepicker({
                 language: "pl",
-                format: "mm/dd/yyyy",
+                format: DATE_FORMAT_PICKER,
                 todayHighlight: true,
                 todayBtn: true,
             });

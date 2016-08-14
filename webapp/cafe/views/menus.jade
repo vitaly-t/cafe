@@ -22,14 +22,23 @@ append scripts
     // Datepicker
     script( src='/node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' )
     script( src='/node_modules/bootstrap-datepicker/dist/locales/bootstrap-datepicker.pl.min.js' )
+    // Moment
+    script( src='/node_modules/moment/min/moment.min.js' )
+
 
     script.
+        var DATE_FORMAT = "YYYY-MM-DD";
+        var DATE_FORMAT_PICKER = "yyyy-mm-dd";
+
         // Document is ready and loaded
         $(document).ready(function() {
             $('#datepicker').datepicker({
                 language: "pl",
-                format: "mm/dd/yyyy",
+                format: DATE_FORMAT_PICKER,
                 todayHighlight: true,
                 todayBtn: true,
+            })
+            .on("changeDate", function(e) {
+                console.log(e);
             });
         });
