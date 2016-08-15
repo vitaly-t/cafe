@@ -15,6 +15,33 @@ var router = express.Router();
 var db = pgp(config.db);
 
 
+// Search
+router.get('/search', promise.coroutine(function*(req, res, next) {
+    console.log("Seaching for menu with dt", req.query.dt);
+    req.checkQuery("dt", "Data musi byc podana.").notEmpty();
+    var errors = req.validationErrors();
+    if (errors) {
+        err = 'Validation errors: ' + util.inspect(errors);
+        console.log(err);
+        return res.status(400).send(err);
+    }
+    try {
+        var client = yield db.connect();
+        var sql =
+            " SELECT m.id " +
+            " FROM cf_menu m " +
+			" WHERE m.dt = $1 ";
+        var rows = yield client.query(sql, [req.query.dt]);
+        console.log("Returning search results:", rows);
+        return res.send(rows);
+    } catch (err) {
+        console.log(err);
+        return res.status(500).send(err);
+    } finally {
+        if (client) client.done();
+    }
+}));
+
 // Get list of menus
 router.get('/', promise.coroutine(function*(req, res, next) {
     try {
@@ -179,5 +206,6 @@ router.post('/:id', promise.coroutine(function*(req, res, next) {
         if (client) client.done();
     }
 }));
+
 
 module.exports = router;

@@ -4,14 +4,14 @@ append styles
     // Bootstrap theme
     link(rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css")
     // Custom styles for this template
-    link(href='/node_modules/jade-bootstrap/css/theme.css', rel='stylesheet')
+    link(href='node_modules/jade-bootstrap/css/theme.css', rel='stylesheet')
     // Datepicker
-    link(href='/node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css', rel='stylesheet')
+    link(href='node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css', rel='stylesheet')
 
 block body
     +navbar-fixed("Arkadia Cafe","navbar","inverse")
-        +nav_item("/menus","active") Menu
-        +nav_item("/logout") Wyloguj
+        +nav_item("menus","active") Menu
+        +nav_item("logout") Wyloguj
     .container.theme-showcase(role='main')
         .page-header
             h1 Edycja Menu
@@ -19,10 +19,10 @@ block body
 
 append scripts
     // Datepicker
-    script( src='/node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' )
-    script( src='/node_modules/bootstrap-datepicker/dist/locales/bootstrap-datepicker.pl.min.js' )
+    script( src='node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' )
+    script( src='node_modules/bootstrap-datepicker/dist/locales/bootstrap-datepicker.pl.min.js' )
     // Moment
-    script( src='/node_modules/moment/min/moment.min.js' )
+    script( src='node_modules/moment/min/moment.min.js' )
         
     script.
         var DATE_FORMAT = "YYYY-MM-DD";
@@ -60,12 +60,12 @@ append scripts
             console.log("Saving menu to server:", m);
             $.ajax({
                 method: "POST",
-                url: (menuId)?("/api/menus/"+menuId):("/api/menus"),
+                url: (menuId)?("api/menus/"+menuId):("api/menus"),
                 data: m
             })
             .done(function(msg) {
                 console.log("Menu saved");
-                window.location = "/menus";
+                window.location = "menus";
             })
             .fail(function(err) {
                 console.error("Saving menu failed", err);
@@ -74,7 +74,7 @@ append scripts
         }
 
         function onCancel() {
-            window.location = "/menus";
+            window.location = "menus";
         }
 
         function onAddItem() {
@@ -192,14 +192,14 @@ append scripts
 
         // Document is ready and loaded
         $(document).ready(function() {
-            $.when($.ajax("/api/kitchens"), $.ajax("/api/poses"), $.ajax("/api/foods"), $.ajax("/api/menu_types"))
+            $.when($.ajax("api/kitchens"), $.ajax("api/poses"), $.ajax("api/foods"), $.ajax("api/menu_types"))
                 .done(function(res_kitchens, res_poses, res_foods, res_menu_types) {
                     kitchens = res_kitchens[0];
                     poses = res_poses[0];
                     foods = res_foods[0];
                     menu_types = res_menu_types[0];
                     if (menuId) {
-                        $.ajax("/api/menus/"+menuId)
+                        $.ajax("api/menus/"+menuId)
                             .done(function(menu) {
                                 renderMenu(menu);
                             })

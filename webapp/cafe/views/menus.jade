@@ -4,15 +4,15 @@ append styles
     // Bootstrap theme
     link(rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css")
     // Custom styles for this template
-    link(href='/node_modules/jade-bootstrap/css/theme.css', rel='stylesheet')
+    link(href='node_modules/jade-bootstrap/css/theme.css', rel='stylesheet')
     // Datepicker
-    link(href='/node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker3.standalone.min.css', rel='stylesheet')
+    link(href='node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker3.standalone.min.css', rel='stylesheet')
 
 
 block body
     +navbar-fixed("Arkadia Cafe","navbar","inverse")
-        +nav_item("/menus","active") Menu
-        +nav_item("/logout") Wyloguj
+        +nav_item("menus","active") Menu
+        +nav_item("logout") Wyloguj
     .container.theme-showcase(role='main')
         .page-header
             h1 Zarządzanie Menu
@@ -20,15 +20,26 @@ block body
 
 append scripts
     // Datepicker
-    script( src='/node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' )
-    script( src='/node_modules/bootstrap-datepicker/dist/locales/bootstrap-datepicker.pl.min.js' )
+    script( src='node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' )
+    script( src='node_modules/bootstrap-datepicker/dist/locales/bootstrap-datepicker.pl.min.js' )
     // Moment
-    script( src='/node_modules/moment/min/moment.min.js' )
+    script( src='node_modules/moment/min/moment.min.js' )
 
 
     script.
         var DATE_FORMAT = "YYYY-MM-DD";
         var DATE_FORMAT_PICKER = "yyyy-mm-dd";
+
+        function onDateSelected(d) {
+            $.ajax("api/menus/search?dt="+moment(d).format(DATE_FORMAT))
+                .done(function(msg) {
+                    window.location = "menu"+((msg.length>0)?("?id="+msg[0].id):"");
+                })
+                .fail(function(err) {
+                    console.error("Searching menu failed", err);
+                    window.alert("Błąd wyszukiwania menu: " + err.responseText);
+                });
+        }
 
         // Document is ready and loaded
         $(document).ready(function() {
@@ -39,6 +50,6 @@ append scripts
                 todayBtn: true,
             })
             .on("changeDate", function(e) {
-                console.log(e);
+                onDateSelected(e.date);
             });
         });
