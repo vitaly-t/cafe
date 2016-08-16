@@ -16,7 +16,10 @@ var db = pgp(config.db);
 
 // Add / Edit menu page
 router.get('/', promise.coroutine(function*(req, res, next) {
-    res.render('menu', { menuId: (req.query.id)?(req.query.id):"null" });
+    res.render('menu', { 
+        menuId: req.query.id,
+        menuDate: req.query.dt
+    });
 }));
 
 module.exports = router;

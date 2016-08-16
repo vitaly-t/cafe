@@ -17,18 +17,32 @@ block body
             h1 Edycja Menu
         #menu
 
+
 append scripts
     // Datepicker
     script( src='node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' )
     script( src='node_modules/bootstrap-datepicker/dist/locales/bootstrap-datepicker.pl.min.js' )
     // Moment
     script( src='node_modules/moment/min/moment.min.js' )
+
+    // Parameters   
+    if menuId
+        script.
+            var menuId = !{menuId};
+    else
+        script.
+            var menuId = null
+    if menuDate
+        script.
+            var menuDate = "!{menuDate}";
+    else
+        script.
+            var menuDate = null
         
     script.
         var DATE_FORMAT = "YYYY-MM-DD";
         var DATE_FORMAT_PICKER = "yyyy-mm-dd";
 
-        var menuId=#{menuId};
         var kitchens, poses, foods, menu_types;
 
         function onSave() {
@@ -209,7 +223,7 @@ append scripts
                             });
                     }
                     else {
-                        var blank_menu = {menu_items:[]};
+                        var blank_menu = {dt:menuDate, menu_items:[]};
                         renderMenu(blank_menu);
                     }
 

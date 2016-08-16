@@ -41,19 +41,20 @@ append scripts
             );
         }
 
-        function renderNoMenu() {
+        function renderNoMenu(d_str) {
             return $('<div>').addClass('row').append(
                 $('<input>').attr('type', 'button').addClass('btn').addClass('btn-default').val('Dodaj Menu').click(function() {
-                    window.location = "menu";
+                    window.location = "menu?dt="+d_str;
                 })
             );
         }
 
         function onDateSelected(d) {
             $("#menu-detail").html("");
-            $.ajax("api/menus/search?dt="+moment(d).format(DATE_FORMAT))
+            var d_str = moment(d).format(DATE_FORMAT);
+            $.ajax("api/menus/search?dt="+d_str)
                 .done(function(msg) {
-                    $("#menu-detail").html((msg.length>0)?(renderMenuDetail(msg[0].id)):renderNoMenu());
+                    $("#menu-detail").html((msg.length>0)?(renderMenuDetail(msg[0].id)):renderNoMenu(d_str));
                 })
                 .fail(function(err) {
                     console.error("Searching menu failed", err);
