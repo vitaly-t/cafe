@@ -79,7 +79,7 @@ append scripts
             })
             .done(function(msg) {
                 console.log("Menu saved");
-                window.location = "menus";
+                window.location = "menus?dt="+m.dt;
             })
             .fail(function(err) {
                 console.error("Saving menu failed", err);
@@ -88,7 +88,8 @@ append scripts
         }
 
         function onCancel() {
-            window.location = "menus";
+            dt = moment($("#menu_date").val()).format(DATE_FORMAT);
+            window.location = "menus?dt="+dt;
         }
 
         function onAddItem() {

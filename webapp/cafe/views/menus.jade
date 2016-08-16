@@ -28,6 +28,13 @@ append scripts
     // Moment
     script( src='node_modules/moment/min/moment.min.js' )
 
+    // Parameters   
+    if menuDate
+        script.
+            var menuDate = "!{menuDate}";
+    else
+        script.
+            var menuDate = null
 
     script.
         var DATE_FORMAT = "YYYY-MM-DD";
@@ -69,6 +76,7 @@ append scripts
                 format: DATE_FORMAT_PICKER,
                 todayHighlight: true,
                 todayBtn: true,
+                defaultDate: new Date(menuDate),
             })
             .on("changeDate", function(e) {
                 onDateSelected(e.date);

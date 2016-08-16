@@ -16,7 +16,9 @@ var db = pgp(config.db);
 
 // Get menus list page
 router.get('/', promise.coroutine(function*(req, res, next) {
-    res.render('menus');
+    res.render('menus', {
+        menuDate: req.query.dt
+    });
 }));
 
 
