@@ -95,7 +95,8 @@ router.get('/:id', promise.coroutine(function*(req, res, next) {
             " JOIN cf_food f ON i.food_id = f.id " +
             " JOIN cf_kitchen k ON i.kitchen_id = k.id " +
             " JOIN cf_pos p ON i.pos_id = p.id " +
-            " WHERE i.menu_id = $1 ";
+            " WHERE i.menu_id = $1 " +
+            " ORDER BY p.name ";
         var rows = yield client.query(sql, [req.params.id]);
         menu.menu_items = rows;
         console.log("Returning menu:", menu);

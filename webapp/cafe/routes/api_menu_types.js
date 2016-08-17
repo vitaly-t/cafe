@@ -20,7 +20,8 @@ router.get('/', promise.coroutine(function*(req, res, next) {
         var client = yield db.connect();
         var sql = 
             " SELECT id, name, description " +
-            " FROM cf_menu_type ";
+            " FROM cf_menu_type " +
+            " ORDER BY name ";
         var rows = yield client.query(sql);
         return res.send(rows);
     } catch (err) {

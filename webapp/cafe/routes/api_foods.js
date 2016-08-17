@@ -21,7 +21,8 @@ router.get('/', promise.coroutine(function*(req, res, next) {
         var sql = 
             " SELECT f.id, f.name, f.description, f.food_type_id, t.name as food_type_name " +
             " FROM cf_food f " +
-            " JOIN cf_food_type t ON f.food_type_id = t.id ";
+            " JOIN cf_food_type t ON f.food_type_id = t.id " +
+            " ORDER BY f.name ";
         var rows = yield client.query(sql);
         return res.send(rows);
     } catch (err) {
