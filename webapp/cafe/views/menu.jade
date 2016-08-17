@@ -7,7 +7,7 @@ append styles
     link(href='node_modules/jade-bootstrap/css/theme.css', rel='stylesheet')
     // Datepicker
     link(href='node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css', rel='stylesheet')
-
+        
 block body
     +navbar-fixed("Arkadia Cafe","navbar","inverse")
         +nav_item("menus","active") Menu
@@ -104,16 +104,16 @@ append scripts
             console.log("Rendering menu item", i);
             return $('<tr>').append(
                 $('<td>').append(
-                    $('<select>').addClass('form-control').attr('id', 'kitchen_id').append(
-                        $.map(kitchens, function(k) {
-                            return $('<option>').val(k.id).text(k.name).prop('selected', i.kitchen_id == k.id);
+                    $('<select>').addClass('form-control col-md-2').attr('id', 'pos_id').append(
+                        $.map(poses, function(p) {
+                            return $('<option>').val(p.id).text(p.name).prop('selected', i.pos_id == p.id);
                         })
                     )
                 ),
                 $('<td>').append(
-                    $('<select>').addClass('form-control').attr('id', 'pos_id').append(
-                        $.map(poses, function(p) {
-                            return $('<option>').val(p.id).text(p.name).prop('selected', i.pos_id == p.id);
+                    $('<select>').addClass('form-control').attr('id', 'kitchen_id').append(
+                        $.map(kitchens, function(k) {
+                            return $('<option>').val(k.id).text(k.name).prop('selected', i.kitchen_id == k.id);
                         })
                     )
                 ),
@@ -132,6 +132,13 @@ append scripts
                 ),
                 $('<td>').append(
                     $('<input>').addClass('form-control').attr('id', 'qty_returned').val(i.qty_returned)
+                ),
+                $('<td>').append(
+                    $('<button>').attr('type', 'button').addClass('btn btn-default btn-sm').append(
+                        $('<span>').addClass('glyphicon glyphicon-minus-sign')
+                    ).click(function() {
+                        $(this).closest("tr").remove();
+                    })
                 )
             );
         }
@@ -169,26 +176,34 @@ append scripts
                     $('<table>').addClass('table').append(
                         $('<thead>').append(
                             $('<tr>').append(
-                                $('<th>').text("Kuchnia"),
-                                $('<th>').text("Dla"),
-                                $('<th>').text("Potrawa"),
-                                $('<th>').text("Zamówienie"),
-                                $('<th>').text("Zam. Extra"),
-                                $('<th>').text("Zwrot")
+                                $('<th>').addClass('col-md-2').text("Pkt. Sprzedaży"),
+                                $('<th>').addClass('col-md-2').text("Kuchnia"),
+                                $('<th>').addClass('col-md-4').text("Potrawa"),
+                                $('<th>').addClass('col-md-1').text("Zamów."),
+                                $('<th>').addClass('col-md-1').text("Extra"),
+                                $('<th>').addClass('col-md-1').text("Zwrot"),
+                                $('<th>').addClass('col-md-1')
                             )
                         ),
                         $('<tbody>').attr('id', 'menu_items').append(
                             $.map(menu.menu_items, function(i) {
                                 return renderMenuItem(i);
                             })
+                        ),
+                        $('<tfoot>').append(
+                            $('<tr>').append(
+                                $('<td>').attr('colspan', 7).append(
+                                    $('<button>').attr('type', 'button').addClass('btn btn-default btn-sm').append(
+                                        $('<span>').addClass('glyphicon glyphicon-plus-sign'),
+                                        " Potrawa"
+                                    ).click(onAddItem)
+                                )
+                            )
                         )
                     )
                 ),
                 $('<div>').addClass('form-group').append(
-                    $('<div>').addClass('col-md-6 btn-toolbar').append(
-                        $('<input>').attr('type', 'button').addClass('btn').addClass('btn-default').val('Dodaj Pozycje Menu').click(onAddItem)
-                    ),
-                    $('<div>').addClass('col-md-6 btn-toolbar text-right').append(
+                    $('<div>').addClass('btn-toolbar text-right').append(
                         $('<input>').attr('type', 'button').addClass('btn').addClass('btn-default').val('Zapisz').click(onSave),
                         $('<input>').attr('type', 'button').addClass('btn').addClass('btn-default').val('Anuluj').click(onCancel)
                     )
