@@ -39,12 +39,19 @@ append scripts
     script.
         var DATE_FORMAT = "YYYY-MM-DD";
         var DATE_FORMAT_PICKER = "yyyy-mm-dd";
+        
+        var kitchens, poses, kitchen_displays;
 
         function renderMenuDetail(id) {
-            return $('<div>').addClass('row').append(
+            return $('<div>').append(
                 $('<input>').attr('type', 'button').addClass('btn').addClass('btn-default').val('Edytuj Menu').click(function() {
                     window.location = "menu?id="+id;
-                })
+                }),
+                $('<div>').addClass('list-group').append(
+                    $.map(kitchen_displays, function(kd) {
+                        return $('<a>').attr('href', 'kitchen_display?id='+kd.id+'&menu_id='+id).addClass('list-group-item').text(kd.name);
+                    })
+                )
             );
         }
 
@@ -71,14 +78,25 @@ append scripts
 
         // Document is ready and loaded
         $(document).ready(function() {
-            $('#datepicker').datepicker({
-                language: "pl",
-                format: DATE_FORMAT_PICKER,
-                todayHighlight: true,
-                todayBtn: true,
-                defaultDate: new Date(menuDate),
-            })
-            .on("changeDate", function(e) {
-                onDateSelected(e.date);
-            });
+            $.when($.ajax("api/kitchens"), $.ajax("api/poses"), $.ajax("api/kitchen_displays"))
+                .done(function(res_kitchens, res_poses, res_kitchen_displays) {
+                    kitchens = res_kitchens[0];
+                    poses = res_poses[0];
+                    kitchen_displays = res_kitchen_displays[0];
+                    // Init main UI elements
+                    $('#datepicker').datepicker({
+                        language: "pl",
+                        format: DATE_FORMAT_PICKER,
+                        todayHighlight: true,
+                        todayBtn: true,
+                        defaultDate: new Date(menuDate),
+                    })
+                    .on("changeDate", function(e) {
+                        onDateSelected(e.date);
+                    });
+                })
+                .fail(function(err) {
+                    console.error("Getting data from server failed", err);
+                    window.alert("Wystąpił błąd.");
+                });
         });

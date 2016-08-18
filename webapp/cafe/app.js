@@ -9,11 +9,14 @@ var expressValidator = require('express-validator');
 var routes = require('./routes/index');
 var menu = require('./routes/menu');
 var menus = require('./routes/menus');
+var kitchen_display = require('./routes/kitchen_display');
+
 var api_menus = require('./routes/api_menus');
 var api_kitchens = require('./routes/api_kitchens');
 var api_poses = require('./routes/api_poses');
 var api_foods = require('./routes/api_foods');
 var api_menu_types = require('./routes/api_menu_types');
+var api_kitchen_displays = require('./routes/api_kitchen_displays');
 
 var app = express();
 
@@ -37,11 +40,14 @@ app.locals.moment = require('moment');
 app.use('/', routes);
 app.use('/menu', menu);
 app.use('/menus', menus);
+app.use('/kitchen_display', kitchen_display);
+
 app.use('/api/menus', api_menus);
 app.use('/api/kitchens', api_kitchens);
 app.use('/api/poses', api_poses);
 app.use('/api/foods', api_foods);
 app.use('/api/menu_types', api_menu_types);
+app.use('/api/kitchen_displays', api_kitchen_displays);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

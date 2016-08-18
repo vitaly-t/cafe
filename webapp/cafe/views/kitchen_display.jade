@@ -1,0 +1,54 @@
+extends ../node_modules/jade-bootstrap/_bootstrap
+
+append styles
+    // Bootstrap theme
+    link(rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css")
+    // Custom styles for this template
+    link(href='node_modules/jade-bootstrap/css/theme.css', rel='stylesheet')
+
+block body
+    +navbar-fixed("Arkadia Cafe","navbar","inverse")
+        +nav_item("menus","active") Menu
+        +nav_item("logout") Wyloguj
+    .container.theme-showcase(role='main')
+        .page-header
+            h1 Kuchnia
+        #display
+
+append scripts
+    // Moment
+    script( src='node_modules/moment/min/moment.min.js' )
+
+    // Parameters   
+    if kitchenDisplayId
+        script.
+            var kitchenDisplayId = "!{kitchenDisplayId}";
+    else
+        script.
+            var kitchenDisplayId = null
+    if menuId
+        script.
+            var menuId = "!{menuId}";
+    else
+        script.
+            var menuId = null
+
+    script.
+
+        function renderDisplay(menu, display) {
+            $("#display").append(menu.dt, display.name);
+        }
+
+        // Document is ready and loaded
+        $(document).ready(function() {
+            $.when($.ajax("api/menus/"+menuId), $.ajax("api/kitchen_displays/"+kitchenDisplayId))
+                .done(function(res_menu, res_kitchen_display) {
+                    menu = res_menu[0];
+                    kitchen_display = res_kitchen_display[0];
+                    renderDisplay(menu, kitchen_display);
+                })
+                .fail(function(err) {
+                    console.error("Getting data from server failed", err);
+                    window.alert("Wystąpił błąd.");
+                });
+        });
