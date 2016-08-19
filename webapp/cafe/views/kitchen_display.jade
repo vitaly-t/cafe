@@ -12,7 +12,7 @@ block body
         +nav_item("logout") Wyloguj
     .container.theme-showcase(role='main')
         .page-header
-            h1 Kuchnia
+            h1#heading
         #display
 
 append scripts
@@ -35,17 +35,28 @@ append scripts
 
     script.
 
-        function renderDisplay(menu, display) {
-            $("#display").append(menu.dt, display.name);
+        function renderDisplay(food_types, menu, kitchen_display) {
+            $("#heading").text(kitchen_display.name + " " + menu.dt);
+            $("#display").append(
+                $.map(food_types, function(t) {
+                    return $('<h2>').attr('id', "food_type_"+t.id).text(t.name);
+                })
+            );
+            $.each(menu.menu_items, function(idx, item) {
+                $("#food_type_"+item.food_type_id).after(
+                    $('<p>').text(item.food_name)
+                );
+            });
         }
 
         // Document is ready and loaded
         $(document).ready(function() {
-            $.when($.ajax("api/menus/"+menuId), $.ajax("api/kitchen_displays/"+kitchenDisplayId))
-                .done(function(res_menu, res_kitchen_display) {
+            $.when($.ajax("api/food_types"), $.ajax("api/menus/"+menuId), $.ajax("api/kitchen_displays/"+kitchenDisplayId))
+                .done(function(res_food_types, res_menu, res_kitchen_display) {
+                    food_types = res_food_types[0];
                     menu = res_menu[0];
                     kitchen_display = res_kitchen_display[0];
-                    renderDisplay(menu, kitchen_display);
+                    renderDisplay(food_types, menu, kitchen_display);
                 })
                 .fail(function(err) {
                     console.error("Getting data from server failed", err);

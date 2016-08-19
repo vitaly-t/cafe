@@ -90,9 +90,11 @@ router.get('/:id', promise.coroutine(function*(req, res, next) {
         }
         var menu = rows[0];
         var sql = 
-            " SELECT i.id, i.food_id, f.name AS food_name, i.kitchen_id, k.name as kitchen_name, i.pos_id, p.name as pos_name, COALESCE(i.qty, 0) AS qty, COALESCE(i.qty_extra, 0) AS qty_extra, COALESCE(i.qty_returned, 0) AS qty_returned " +
+            " SELECT i.id, i.food_id, f.name AS food_name, f.units AS food_units, t.id as food_type_id, t.name as food_type_name, i.kitchen_id, k.name as kitchen_name, i.pos_id, p.name as pos_name, COALESCE(i.qty, 0) AS qty, COALESCE(i.qty_extra, 0) AS qty_extra, COALESCE(i.qty_returned, 0) AS qty_returned, " +
+            " f.menu_title_pl, f.menu_title_en, f.menu_title_jp, f.menu_title_it, f.menu_title_uk, f.menu_title_ru " +
             " FROM cf_menu_item i " +
             " JOIN cf_food f ON i.food_id = f.id " +
+            " JOIN cf_food_type t ON f.food_type_id = t.id " +
             " JOIN cf_kitchen k ON i.kitchen_id = k.id " +
             " JOIN cf_pos p ON i.pos_id = p.id " +
             " WHERE i.menu_id = $1 " +

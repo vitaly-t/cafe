@@ -17,6 +17,7 @@ var api_poses = require('./routes/api_poses');
 var api_foods = require('./routes/api_foods');
 var api_menu_types = require('./routes/api_menu_types');
 var api_kitchen_displays = require('./routes/api_kitchen_displays');
+var api_food_types = require('./routes/api_food_types');
 
 var app = express();
 
@@ -48,6 +49,7 @@ app.use('/api/poses', api_poses);
 app.use('/api/foods', api_foods);
 app.use('/api/menu_types', api_menu_types);
 app.use('/api/kitchen_displays', api_kitchen_displays);
+app.use('/api/food_types', api_food_types);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

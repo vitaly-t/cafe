@@ -49,7 +49,9 @@ router.get('/:id', promise.coroutine(function*(req, res, next) {
             " FROM cf_kitchen_display " +
             " WHERE id = $1";
         var rows = yield client.query(sql, [req.params.id]);
-        return res.send(rows);
+        display = rows[0];
+        console.log("Returning kitchen displays", display);
+        return res.send(display);
     } catch (err) {
         console.log(err);
         res.status(500);
