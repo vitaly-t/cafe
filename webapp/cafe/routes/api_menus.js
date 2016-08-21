@@ -97,9 +97,18 @@ router.get('/:id', promise.coroutine(function*(req, res, next) {
             " JOIN cf_food_type t ON f.food_type_id = t.id " +
             " JOIN cf_kitchen k ON i.kitchen_id = k.id " +
             " JOIN cf_pos p ON i.pos_id = p.id " +
-            " WHERE i.menu_id = $1 " +
-            " ORDER BY p.name ";
-        var rows = yield client.query(sql, [req.params.id]);
+            " WHERE i.menu_id = $1 ";
+        if (req.query.kitchen_id) {
+            sql += 
+                " AND i.kitchen_id = $2 " +
+                " ORDER BY t.ord, f.name, p.name ";
+            params = [req.params.id, req.query.kitchen_id];
+        }
+        else {
+            sql += " ORDER BY p.name, t.ord, f.name, k.name ";
+            params = [req.params.id];
+        }
+        var rows = yield client.query(sql, params);
         menu.menu_items = rows;
         console.log("Returning menu:", menu);
         return res.send(menu);

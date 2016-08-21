@@ -35,28 +35,91 @@ append scripts
 
     script.
 
-        function renderDisplay(food_types, menu, kitchen_display) {
+        var last_ftn = "";
+        var last_fn = "";
+        var total_qty = 0;
+        var total_qty_extra = 0;
+        var total_count = 0;
+
+        // Menu totals html
+        function renderTotals() {
+            if (total_count <= 0) {
+                return null;
+            }
+            var html = $('<tr>').append(
+                $('<td>'),
+                $('<td>'),
+                $('<td>'),
+                $('<td>').text(total_qty),
+                $('<td>').text(total_qty_extra)
+            );
+            total_qty = 0;
+            total_qty_extra = 0;
+            total_count = 0;
+            return html;
+        }
+
+        // Build menu item html
+        function renderMenuItem(i) {
+            console.log("Rendering menu item", i);
+            var ftn = i.food_type_name;
+            var fn = i.menu_title_pl + ((i.menu_title_uk)?(" / " + i.menu_title_uk):"");
+            // if food changed add total row
+            var html_total = null;
+            if (fn != last_fn) {
+                html_total = renderTotals();
+            }
+            var html = $('<tr>').append(
+                $('<td>').text((ftn!=last_ftn)?ftn:""),
+                $('<td>').text((fn!=last_fn)?fn:""),
+                $('<td>').text(i.pos_name),
+                $('<td>').text(i.qty),
+                $('<td>').text(i.qty_extra)
+            );
+            total_qty += i.qty; 
+            total_qty_extra += i.qty_extra; 
+            total_count += 1;
+            last_ftn = ftn;
+            last_fn = fn;
+            return (html_total)?(html_total.add(html)):(html);
+        }
+
+        function renderDisplay(kitchen_display, menu) {
             $("#heading").text(kitchen_display.name + " " + menu.dt);
             $("#display").append(
-                $.map(food_types, function(t) {
-                    return $('<h2>').attr('id', "food_type_"+t.id).text(t.name);
-                })
+                $('<table>').addClass('table').append(
+                    $('<thead>').append(
+                        $('<tr>').append(
+                            $('<th>').addClass('col-md-2').text("Typ"),
+                            $('<th>').addClass('col-md-4').text("Potrawa"),
+                            $('<th>').addClass('col-md-2').text("Pkt. Sprzedaży"),
+                            $('<th>').addClass('col-md-2').text("Zamówienie"),
+                            $('<th>').addClass('col-md-2').text("Zam. Extra")
+                        )
+                    ),
+                    $('<tbody>').attr('id', 'menu_items').append(
+                        $.map(menu.menu_items, function(i) {
+                            return renderMenuItem(i);
+                        })
+                    ).append(
+                        renderTotals()
+                    )
+                )
             );
-            $.each(menu.menu_items, function(idx, item) {
-                $("#food_type_"+item.food_type_id).after(
-                    $('<p>').text(item.food_name)
-                );
-            });
         }
 
         // Document is ready and loaded
         $(document).ready(function() {
-            $.when($.ajax("api/food_types"), $.ajax("api/menus/"+menuId), $.ajax("api/kitchen_displays/"+kitchenDisplayId))
-                .done(function(res_food_types, res_menu, res_kitchen_display) {
-                    food_types = res_food_types[0];
-                    menu = res_menu[0];
-                    kitchen_display = res_kitchen_display[0];
-                    renderDisplay(food_types, menu, kitchen_display);
+            $.ajax("api/kitchen_displays/"+kitchenDisplayId)
+                .done(function(kitchen_display) {
+                    $.ajax("api/menus/"+menuId+"?kitchen_id="+kitchen_display.kitchen_id)
+                        .done(function(menu) {
+                            renderDisplay(kitchen_display, menu);
+                        })
+                        .fail(function(err) {
+                            console.error("Getting data from server failed", err);
+                            window.alert("Wystąpił błąd.");
+                        });
                 })
                 .fail(function(err) {
                     console.error("Getting data from server failed", err);

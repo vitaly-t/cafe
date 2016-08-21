@@ -19,7 +19,7 @@ router.get('/', promise.coroutine(function*(req, res, next) {
     try {
         var client = yield db.connect();
         var sql = 
-            " SELECT id, name, description " +
+            " SELECT id, name, description, kitchen_id " +
             " FROM cf_kitchen_display " +
             " ORDER BY name ";
         var rows = yield client.query(sql);
@@ -45,7 +45,7 @@ router.get('/:id', promise.coroutine(function*(req, res, next) {
     try {
         var client = yield db.connect();
         var sql = 
-            " SELECT id, name, description " +
+            " SELECT id, name, description, kitchen_id " +
             " FROM cf_kitchen_display " +
             " WHERE id = $1";
         var rows = yield client.query(sql, [req.params.id]);
