@@ -5,6 +5,13 @@ append styles
     link(rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css")
     // Custom styles for this template
     link(href='node_modules/jade-bootstrap/css/theme.css', rel='stylesheet')
+    style.
+        .table-totals {
+            font-weight: bold;
+        }
+        .table-sum {
+            text-align: right;
+        }
 
 block body
     +navbar-fixed("Arkadia Cafe","navbar","inverse")
@@ -40,18 +47,19 @@ append scripts
         var total_qty = 0;
         var total_qty_extra = 0;
         var total_count = 0;
+        var total_units = "";
 
         // Menu totals html
         function renderTotals() {
             if (total_count <= 0) {
                 return null;
             }
-            var html = $('<tr>').append(
+            var html = $('<tr>').addClass('table-totals').append(
                 $('<td>'),
                 $('<td>'),
                 $('<td>'),
-                $('<td>').text(total_qty),
-                $('<td>').text(total_qty_extra)
+                $('<td>').addClass("table-sum").text("Suma:"),
+                $('<td>').text((total_qty+total_qty_extra)+" "+total_units)
             );
             total_qty = 0;
             total_qty_extra = 0;
@@ -73,12 +81,13 @@ append scripts
                 $('<td>').text((ftn!=last_ftn)?ftn:""),
                 $('<td>').text((fn!=last_fn)?fn:""),
                 $('<td>').text(i.pos_name),
-                $('<td>').text(i.qty),
-                $('<td>').text(i.qty_extra)
+                $('<td>').text(i.qty?i.qty:0),
+                $('<td>').text(i.qty_extra?i.qty_extra:0)
             );
             total_qty += i.qty; 
             total_qty_extra += i.qty_extra; 
             total_count += 1;
+            total_units = i.food_units;
             last_ftn = ftn;
             last_fn = fn;
             return (html_total)?(html_total.add(html)):(html);
