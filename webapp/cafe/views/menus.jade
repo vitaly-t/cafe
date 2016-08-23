@@ -40,17 +40,26 @@ append scripts
         var DATE_FORMAT = "YYYY-MM-DD";
         var DATE_FORMAT_PICKER = "yyyy-mm-dd";
         
-        var kitchens, poses, kitchen_displays;
+        var kitchens, poses, kitchen_displays, pos_displays;
 
         function renderMenuDetail(id) {
             return $('<div>').append(
                 $('<input>').attr('type', 'button').addClass('btn').addClass('btn-default').val('Edytuj Menu').click(function() {
                     window.location = "menu?id="+id;
                 }),
-                $('<div>').addClass('list-group').append(
-                    $.map(kitchen_displays, function(kd) {
-                        return $('<a>').attr('href', 'kitchen_display?id='+kd.id+'&menu_id='+id).addClass('list-group-item').text(kd.name);
-                    })
+                $('<p>').append(
+                    $('<div>').addClass('list-group').append(
+                        $.map(kitchen_displays, function(kd) {
+                            return $('<a>').attr('href', 'kitchen_display?id='+kd.id+'&menu_id='+id).addClass('list-group-item').text(kd.name);
+                        })
+                    )
+                ),
+                $('<p>').append(
+                    $('<div>').addClass('list-group').append(
+                        $.map(pos_displays, function(pd) {
+                            return $('<a>').attr('href', 'pos_display?id='+pd.id+'&menu_id='+id).addClass('list-group-item').text(pd.name);
+                        })
+                    )
                 )
             );
         }
@@ -78,11 +87,12 @@ append scripts
 
         // Document is ready and loaded
         $(document).ready(function() {
-            $.when($.ajax("api/kitchens"), $.ajax("api/poses"), $.ajax("api/kitchen_displays"))
-                .done(function(res_kitchens, res_poses, res_kitchen_displays) {
+            $.when($.ajax("api/kitchens"), $.ajax("api/poses"), $.ajax("api/kitchen_displays"), $.ajax("api/pos_displays"))
+                .done(function(res_kitchens, res_poses, res_kitchen_displays, res_pos_displays) {
                     kitchens = res_kitchens[0];
                     poses = res_poses[0];
                     kitchen_displays = res_kitchen_displays[0];
+                    pos_displays = res_pos_displays[0];
                     // Init main UI elements
                     $('#datepicker').datepicker({
                         language: "pl",

@@ -1,0 +1,140 @@
+extends ../node_modules/jade-bootstrap/_bootstrap
+
+append styles
+    // Bootstrap theme
+    link(rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css")
+    // Custom styles for this template
+    link(href='node_modules/jade-bootstrap/css/theme.css', rel='stylesheet')
+    style.
+        .table-totals {
+            font-weight: bold;
+        }
+        .table-sum {
+            text-align: right;
+        }
+
+block body
+    +navbar-fixed("Arkadia Cafe","navbar","inverse")
+        +nav_item("menus","active") Menu
+        +nav_item("logout") Wyloguj
+    .container.theme-showcase(role='main')
+        .page-header
+            h1#heading
+        #display
+
+append scripts
+    // Moment
+    script( src='node_modules/moment/min/moment.min.js' )
+
+    // Parameters   
+    if posDisplayId
+        script.
+            var posDisplayId = "!{posDisplayId}";
+    else
+        script.
+            var posDisplayId = null
+    if menuId
+        script.
+            var menuId = "!{menuId}";
+    else
+        script.
+            var menuId = null
+
+    script.
+
+        var last_ftn = "";
+        var last_fn = "";
+        var total_qty = 0;
+        var total_qty_extra = 0;
+        var total_count = 0;
+        var total_units = "";
+
+        // Menu totals html
+        function renderTotals() {
+            if (total_count <= 0) {
+                return null;
+            }
+            var html = $('<tr>').addClass('table-totals').append(
+                $('<td>'),
+                $('<td>'),
+                $('<td>'),
+                $('<td>'),
+                $('<td>'),
+                $('<td>').text((total_qty+total_qty_extra)+" ("+total_units+")")
+            );
+            total_qty = 0;
+            total_qty_extra = 0;
+            total_count = 0;
+            return html;
+        }
+
+        // Build menu item html
+        function renderMenuItem(i) {
+            console.log("Rendering menu item", i);
+            var ftn = i.food_type_name;
+            var fn = i.menu_title_pl + ((i.menu_title_uk)?(" / " + i.menu_title_uk):"");
+            // if food changed add total row
+            var html_total = null;
+            if (fn != last_fn) {
+                html_total = renderTotals();
+            }
+            var html = $('<tr>').append(
+                $('<td>').text((ftn!=last_ftn)?ftn:""),
+                $('<td>').text((fn!=last_fn)?fn:""),
+                $('<td>').text(i.pos_name),
+                $('<td>').text(i.qty?i.qty:0),
+                $('<td>').text(i.qty_extra?i.qty_extra:0),
+                $('<td>')
+            );
+            total_qty += i.qty; 
+            total_qty_extra += i.qty_extra; 
+            total_count += 1;
+            total_units = i.food_units;
+            last_ftn = ftn;
+            last_fn = fn;
+            return (html_total)?(html_total.add(html)):(html);
+        }
+
+        function renderDisplay(kitchen_display, menu) {
+            $("#heading").text(kitchen_display.name + " " + menu.dt);
+            $("#display").append(
+                $('<table>').addClass('table').append(
+                    $('<thead>').append(
+                        $('<tr>').append(
+                            $('<th>').addClass('col-md-2').text("Typ"),
+                            $('<th>').addClass('col-md-4').text("Potrawa"),
+                            $('<th>').addClass('col-md-2').text("Pkt. Sprzedaży"),
+                            $('<th>').addClass('col-md-1').text("Zam."),
+                            $('<th>').addClass('col-md-1').text("Extra"),
+                            $('<th>').addClass('col-md-1').text("Suma")
+                        )
+                    ),
+                    $('<tbody>').attr('id', 'menu_items').append(
+                        $.map(menu.menu_items, function(i) {
+                            return renderMenuItem(i);
+                        })
+                    ).append(
+                        renderTotals()
+                    )
+                )
+            );
+        }
+
+        // Document is ready and loaded
+        $(document).ready(function() {
+            $.ajax("api/kitchen_displays/"+kitchenDisplayId)
+                .done(function(kitchen_display) {
+                    $.ajax("api/menus/"+menuId+"?kitchen_id="+kitchen_display.kitchen_id)
+                        .done(function(menu) {
+                            renderDisplay(kitchen_display, menu);
+                        })
+                        .fail(function(err) {
+                            console.error("Getting data from server failed", err);
+                            window.alert("Wystąpił błąd.");
+                        });
+                })
+                .fail(function(err) {
+                    console.error("Getting data from server failed", err);
+                    window.alert("Wystąpił błąd.");
+                });
+        });
