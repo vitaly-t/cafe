@@ -60,7 +60,7 @@ append scripts
                 $('<td>'),
                 $('<td>'),
                 $('<td>'),
-                $('<td>').text((total_qty+total_qty_extra)+" ("+total_units+")")
+                $('<td>').text((total_qty+total_qty_extra)+" (porcje)")
             );
             total_qty = 0;
             total_qty_extra = 0;
@@ -137,4 +137,7 @@ append scripts
                     console.error("Getting data from server failed", err);
                     window.alert("Wystąpił błąd.");
                 });
+
+            // auto refresh
+            setTimeout(function() {window.location = location.href;}, 60*1000);
         });

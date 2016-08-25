@@ -104,6 +104,12 @@ router.get('/:id', promise.coroutine(function*(req, res, next) {
                 " ORDER BY t.ord, f.name, p.name ";
             params = [req.params.id, req.query.kitchen_id];
         }
+        else if (req.query.pos_id) {
+            sql += 
+                " AND i.pos_id = $2 " +
+                " ORDER BY t.ord, f.name, k.name ";
+            params = [req.params.id, req.query.pos_id];
+        }
         else {
             sql += " ORDER BY p.name, t.ord, f.name, k.name ";
             params = [req.params.id];
