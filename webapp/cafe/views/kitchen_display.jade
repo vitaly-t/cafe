@@ -6,20 +6,32 @@ append styles
     // Custom styles for this template
     link(href='node_modules/jade-bootstrap/css/theme.css', rel='stylesheet')
     style.
+        body {
+            padding: 0;
+        }
         .table-totals {
             font-weight: bold;
         }
         .table-sum {
             text-align: right;
         }
+        table.food tbody td {
+            //border: none !important;
+            padding-bottom: 0 !important;
+            padding-top: 0 !important;
+        }
 
 block body
-    +navbar-fixed("Arkadia Cafe","navbar","inverse")
-        +nav_item("menus","active") Menu
-        +nav_item("logout") Wyloguj
     .container.theme-showcase(role='main')
         .page-header
-            h1#heading
+            .row
+                .col-md-3
+                        img(src='images/arkadia_mini.jpg')
+                .col-md-6.text-center
+                    h3#heading
+                .col-md-3.text-right
+                    h3
+                        small#timestamp
         #display
 
 append scripts
@@ -42,6 +54,10 @@ append scripts
 
     script.
 
+        var curr_row = null;
+        var row_elems = 0;
+        var curr_tbody = null;
+        var curr_tfoot = null;
         var last_ftn = "";
         var last_fn = "";
         var total_qty = 0;
@@ -49,23 +65,45 @@ append scripts
         var total_count = 0;
         var total_units = "";
 
-        // Menu totals html
-        function renderTotals() {
-            if (total_count <= 0) {
-                return null;
+        // Open food
+        function renderFoodHeader(fn) {
+            if (row_elems%4 == 0) {
+                curr_row = $('<div>').addClass('row');
+                $("#display").append(
+                    curr_row
+                );
             }
-            var html = $('<tr>').addClass('table-totals').append(
-                $('<td>'),
-                $('<td>'),
-                $('<td>'),
-                $('<td>'),
-                $('<td>'),
-                $('<td>').text((total_qty+total_qty_extra)+" (porcje)")
+            row_elems += 1;
+            curr_tbody = $('<tbody>');
+            curr_tfoot = $('<tfoot>');
+            curr_row.append(
+                $('<div>').addClass('col-md-3').append(
+                    $('<table>').addClass('table table-condensed food').append(
+                        $('<thead>').append(
+                            $('<tr>').append(
+                                $('<th>').attr('colspan', 3).text(fn)
+                            )
+                        ),
+                        curr_tbody,
+                        curr_tfoot
+                    )
+                )
+            );
+        }
+
+        // Close food
+        function renderFoodFooter() {
+            if (!curr_tfoot) {
+                return;
+            }
+            curr_tfoot.append(
+                $('<tr>').append(
+                    $('<td>').attr('colspan', 3).addClass('text-right').text("Suma: "+(total_qty+total_qty_extra)+" porcji")
+                )
             );
             total_qty = 0;
             total_qty_extra = 0;
             total_count = 0;
-            return html;
         }
 
         // Build menu item html
@@ -73,18 +111,20 @@ append scripts
             console.log("Rendering menu item", i);
             var ftn = i.food_type_name;
             var fn = i.menu_title_pl + ((i.menu_title_uk)?(" / " + i.menu_title_uk):"");
-            // if food changed add total row
-            var html_total = null;
-            if (fn != last_fn) {
-                html_total = renderTotals();
+            // if food changed and already processed some, close previous
+            if (last_fn && fn != last_fn) {
+                renderFoodFooter();
             }
-            var html = $('<tr>').append(
-                $('<td>').text((ftn!=last_ftn)?ftn:""),
-                $('<td>').text((fn!=last_fn)?fn:""),
-                $('<td>').text(i.pos_name),
-                $('<td>').text(i.qty?i.qty:0),
-                $('<td>').text(i.qty_extra?i.qty_extra:0),
-                $('<td>')
+            // if food chaged, open new
+            if (fn != last_fn) {
+                renderFoodHeader(fn);
+            }
+            curr_tbody.append(
+                $('<tr>').append(
+                    $('<td>').text(i.pos_name),
+                    $('<td>').addClass('text-right').text(i.qty?i.qty:0),
+                    $('<td>').addClass('text-right').text(i.qty_extra?i.qty_extra:0)
+                )
             );
             total_qty += i.qty; 
             total_qty_extra += i.qty_extra; 
@@ -92,40 +132,35 @@ append scripts
             total_units = i.food_units;
             last_ftn = ftn;
             last_fn = fn;
-            return (html_total)?(html_total.add(html)):(html);
         }
 
         function renderDisplay(kitchen_display, menu) {
             $("#heading").text(kitchen_display.name + " " + menu.dt);
-            $("#display").append(
-                $('<table>').addClass('table').append(
-                    $('<thead>').append(
-                        $('<tr>').append(
-                            $('<th>').addClass('col-md-2').text("Typ"),
-                            $('<th>').addClass('col-md-4').text("Potrawa"),
-                            $('<th>').addClass('col-md-2').text("Pkt. Sprzedaży"),
-                            $('<th>').addClass('col-md-1').text("Zam."),
-                            $('<th>').addClass('col-md-1').text("Extra"),
-                            $('<th>').addClass('col-md-1').text("Suma")
-                        )
-                    ),
-                    $('<tbody>').attr('id', 'menu_items').append(
-                        $.map(menu.menu_items, function(i) {
-                            return renderMenuItem(i);
-                        })
-                    ).append(
-                        renderTotals()
-                    )
-                )
-            );
+            $.each(menu.menu_items, function(idx, i) {
+                renderMenuItem(i);
+            });
+            renderFoodFooter();
+            $("#timestamp").text(new moment().format("YYYY-MM-DD HH:mm:ss"));
         }
 
-        // Document is ready and loaded
-        $(document).ready(function() {
+        // Reload the data and render 
+        function refreshDisplay() {
+            curr_row = null;
+            row_elems = 0;
+            curr_tbody = null;
+            curr_tfoot = null;
+            last_ftn = "";
+            last_fn = "";
+            total_qty = 0;
+            total_qty_extra = 0;
+            total_count = 0;
+            total_units = "";
+
             $.ajax("api/kitchen_displays/"+kitchenDisplayId)
                 .done(function(kitchen_display) {
                     $.ajax("api/menus/"+menuId+"?kitchen_id="+kitchen_display.kitchen_id)
                         .done(function(menu) {
+                            $("#display").empty();
                             renderDisplay(kitchen_display, menu);
                         })
                         .fail(function(err) {
@@ -138,6 +173,11 @@ append scripts
                     window.alert("Wystąpił błąd.");
                 });
 
-            // auto refresh
-            setTimeout(function() {window.location = location.href;}, 60*1000);
+            // Refresh display periodically
+            setTimeout(function() {refreshDisplay();}, 60*1000);
+        }
+
+        // Document is ready and loaded
+        $(document).ready(function() {
+            refreshDisplay();
         });
