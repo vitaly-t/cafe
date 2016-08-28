@@ -1,8 +1,8 @@
-= TV Support =
+#TV Support
 
-== Raspberry Pi ==
+##Raspberry Pi
 
-=== Install Chromium ===
+###Install Chromium
 
 ```
 sudo apt-get update
