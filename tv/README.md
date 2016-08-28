@@ -2,6 +2,13 @@
 
 ##Raspberry Pi
 
+###Initial Configuration
+
+Via UI, set the following:
+- WIFI Country - Poland
+- Timezone - Warsaw
+- Keyboard - English US (Polish OK as well)
+- Locale - English US (Polish OK as well)
 
 ###Disable Screen Saver / Screen Blank
 
