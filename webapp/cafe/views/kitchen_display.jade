@@ -53,6 +53,7 @@ append scripts
             var menuId = null
 
     script.
+        var DATE_FORMAT = "YYYY-MM-DD";
 
         var curr_row = null;
         var row_elems = 0;
@@ -135,16 +136,6 @@ append scripts
         }
 
         function renderDisplay(kitchen_display, menu) {
-            $("#heading").text(kitchen_display.name + " " + menu.dt);
-            $.each(menu.menu_items, function(idx, i) {
-                renderMenuItem(i);
-            });
-            renderFoodFooter();
-            $("#timestamp").text(new moment().format("YYYY-MM-DD HH:mm"));
-        }
-
-        // Reload the data and render 
-        function refreshDisplay() {
             curr_row = null;
             row_elems = 0;
             curr_tbody = null;
@@ -155,26 +146,76 @@ append scripts
             total_qty_extra = 0;
             total_count = 0;
             total_units = "";
+            var dt = (menu) ? (menu.dt) : (new moment().format("YYYY-MM-DD"));
+            $("#heading").text(kitchen_display.name + " " + dt);
+            $("#display").empty();
+            if (menu) {
+                $.each(menu.menu_items, function(idx, i) {
+                    renderMenuItem(i);
+                });
+                renderFoodFooter();
+            }
+            else {
+                $("#display").empty();
+                $("#display").append(
+                    $("<h1>").text("Menu na " + dt + " nie jest ustalone.")
+                );
+            }
+            $("#timestamp").text(new moment().format("YYYY-MM-DD HH:mm"));
+        }
 
+        function refreshMenuDisplay(kitchen_display, menuId) {
+            if (menuId) {
+                $.ajax("api/menus/"+menuId+"?kitchen_id="+kitchen_display.kitchen_id)
+                    .done(function(menu) {
+                        renderDisplay(kitchen_display, menu);
+                    })
+                    .fail(function(err) {
+                        console.error("Getting data from server failed", err);
+                        window.alert("Wystąpił błąd.");
+                    });
+             }
+             else {
+                renderDisplay(kitchen_display, null);
+             }
+        }
+
+        // Reload the data and render 
+        function refreshDisplay() {
+            // Schedule next refresh
+            setTimeout(function() {refreshDisplay();}, 60*1000);
+
+            // Get kitchen display
             $.ajax("api/kitchen_displays/"+kitchenDisplayId)
                 .done(function(kitchen_display) {
-                    $.ajax("api/menus/"+menuId+"?kitchen_id="+kitchen_display.kitchen_id)
-                        .done(function(menu) {
-                            $("#display").empty();
-                            renderDisplay(kitchen_display, menu);
-                        })
-                        .fail(function(err) {
-                            console.error("Getting data from server failed", err);
-                            window.alert("Wystąpił błąd.");
-                        });
+                    // Find menu for today if not given
+                    if (!menuId) {
+                        var d_str = moment().format(DATE_FORMAT);
+                        $.ajax("api/menus/search?dt="+d_str)
+                            .done(function(msg) {
+                                if (msg.length>0) {
+                                    menuId = msg[0].id
+                                    // found menu by date
+                                    refreshMenuDisplay(kitchen_display, menuId);
+                                }
+                                else {
+                                    // menu not given, not found for today
+                                    refreshMenuDisplay(kitchen_display, null);
+                                }
+                            })
+                            .fail(function(err) {
+                                console.error("Getting data from server failed", err);
+                                window.alert("Wystąpił błąd.");
+                            });
+                    } else {
+                        // menu given
+                        refreshMenuDisplay(kitchen_display, menuId);
+                    }
                 })
                 .fail(function(err) {
                     console.error("Getting data from server failed", err);
                     window.alert("Wystąpił błąd.");
                 });
-
-            // Refresh display periodically
-            setTimeout(function() {refreshDisplay();}, 60*1000);
         }
 
         // Document is ready and loaded
