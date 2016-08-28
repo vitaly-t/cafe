@@ -2,6 +2,17 @@
 
 ##Raspberry Pi
 
+
+###Disable Screen Saver / Screen Blank
+
+Update the /etc/lightdm/lightdm.conf file and add in the [SeatDefaults] section the following command:
+
+```
+[SeatDefaults]
+xserver-command=X -s 0 -dpms
+```
+
+
 ###Install Chromium
 
 ```
