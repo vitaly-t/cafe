@@ -1,0 +1,66 @@
+extends ../node_modules/jade-bootstrap/_bootstrap
+
+append styles
+    // Bootstrap theme
+    link(rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css")
+    // Custom styles for this template
+    link(href='node_modules/jade-bootstrap/css/theme.css', rel='stylesheet')
+
+block body
+    +navbar-fixed("Arkadia Cafe","navbar","inverse")
+        +nav_item("menus") Menu
+        +nav_item("displays", "active") Ekrany
+        +nav_item("logout") Wyloguj
+    .container.theme-showcase(role='main')
+        .page-header
+            h1 Podgląd Ekranów
+        .row
+            .col-md-6
+                #kitchen-displays
+            .col-md-6
+                #pos-displays
+
+append scripts
+    // Datepicker
+    script( src='node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' )
+    script( src='node_modules/bootstrap-datepicker/dist/locales/bootstrap-datepicker.pl.min.js' )
+    // Moment
+    script( src='node_modules/moment/min/moment.min.js' )
+
+    script.
+        function renderDisplays(kitchen_displays, pos_displays) {
+            $('#kitchen-displays').append(
+                $('<h3>').text('Kuchnie'),
+                $('<p>').append(
+                    $('<div>').addClass('list-group').append(
+                        $.map(kitchen_displays, function(kd) {
+                            return $('<a>').attr('href', 'kitchen_display?id='+kd.id).addClass('list-group-item').text(kd.name);
+                        })
+                    )
+                )
+            );
+            $('#pos-displays').append(
+                $('<h3>').text('Sale'),
+                $('<p>').append(
+                    $('<div>').addClass('list-group').append(
+                        $.map(pos_displays, function(pd) {
+                            return $('<a>').attr('href', 'pos_display?id='+pd.id).addClass('list-group-item').text(pd.name);
+                        })
+                    )
+                )
+            );
+        }
+
+        // Document is ready and loaded
+        $(document).ready(function() {
+            $.when($.ajax("api/kitchen_displays"), $.ajax("api/pos_displays"))
+                .done(function(res_kitchen_displays, res_pos_displays) {
+                    kitchen_displays = res_kitchen_displays[0];
+                    pos_displays = res_pos_displays[0];
+                    renderDisplays(kitchen_displays, pos_displays)
+                })
+                .fail(function(err) {
+                    console.error("Getting data from server failed", err);
+                    window.alert("Wystąpił błąd.");
+                });
+        });

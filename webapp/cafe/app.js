@@ -9,6 +9,7 @@ var expressValidator = require('express-validator');
 var routes = require('./routes/index');
 var menu = require('./routes/menu');
 var menus = require('./routes/menus');
+var displays = require('./routes/displays');
 var kitchen_display = require('./routes/kitchen_display');
 var pos_display = require('./routes/pos_display');
 
@@ -41,8 +42,10 @@ app.use('/node_modules',  express.static(__dirname + '/node_modules'));
 app.locals.moment = require('moment');
 
 app.use('/', routes);
-app.use('/menu', menu);
 app.use('/menus', menus);
+app.use('/displays', displays);
+
+app.use('/menu', menu);
 app.use('/kitchen_display', kitchen_display);
 app.use('/pos_display', pos_display);
 
